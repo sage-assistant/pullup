@@ -4,6 +4,7 @@ import { openai, requireOpenAIKey } from '@/lib/openai';
 import type { NightPlan } from '@/lib/types';
 
 export const runtime = 'nodejs';
+export const maxDuration = 60;
 
 function buildPrompt(data: NightPlan) {
   return `
@@ -89,26 +90,32 @@ export async function POST(request: Request) {
     outrageLevel: body.outrageLevel,
   };
 
-  const response = await openai.responses.create({
-    model: 'gpt-4o',
-    instructions:
-      'You are an elite creative developer generating a world-class single-file HTML experience. Return only valid HTML that runs in a browser with no external dependencies besides Google Fonts.',
-    input: buildPrompt(plan),
-    temperature: 0.95,
-    max_output_tokens: 12000,
-  });
+  try {
+    const response = await openai.responses.create({
+      model: 'gpt-4o',
+      instructions:
+        'You are an elite creative developer generating a world-class single-file HTML experience. Return only valid HTML that runs in a browser with no external dependencies besides Google Fonts. Output the full HTML document and nothing else.',
+      input: buildPrompt(plan),
+      temperature: 0.95,
+      max_output_tokens: 16000,
+    });
 
-  const html = stripHtmlFences(response.output_text);
+    const html = stripHtmlFences(response.output_text);
 
-  if (!html.toLowerCase().includes('<html')) {
-    return Response.json({ error: 'Model did not return a full HTML document.' }, { status: 502 });
+    if (!html.toLowerCase().includes('<html')) {
+      return Response.json({ error: 'Model did not return a full HTML document. Try again.' }, { status: 502 });
+    }
+
+    const slug = buildSiteSlug(plan.target.name, plan.venueName);
+    await writeGeneratedSite(slug, html);
+
+    return Response.json({
+      slug,
+      url: `/sites/${slug}`,
+    });
+  } catch (err) {
+    const message = err instanceof Error ? err.message : 'Unknown generation error';
+    console.error('Generate error:', message);
+    return Response.json({ error: `Generation failed: ${message}` }, { status: 500 });
   }
-
-  const slug = buildSiteSlug(plan.target.name, plan.venueName);
-  await writeGeneratedSite(slug, html);
-
-  return Response.json({
-    slug,
-    url: `/sites/${slug}`,
-  });
 }

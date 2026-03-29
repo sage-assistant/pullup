@@ -1,7 +1,7 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
 import path from 'node:path';
 
-const GENERATED_DIR = path.join(process.cwd(), 'generated-sites');
+const GENERATED_DIR = process.env.VERCEL ? '/tmp/generated-sites' : path.join(process.cwd(), 'generated-sites');
 
 export function slugify(value: string) {
   return value
