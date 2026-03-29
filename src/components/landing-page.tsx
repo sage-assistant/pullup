@@ -130,6 +130,48 @@ export function LandingPage() {
         </div>
       </section>
 
+      {/* GALLERY: REAL EXAMPLES */}
+      <section className="mx-auto max-w-7xl px-5 pb-16 sm:px-8 lg:px-10">
+        <div className="border-t border-black pt-12">
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <div>
+              <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-[#666666]">RECENT DEPLOYMENTS</p>
+              <h2 className="mt-3 font-sans text-3xl font-black uppercase tracking-[-0.06em] sm:text-5xl">
+                BUILT BY REAL PEOPLE.<br />SENT TO REAL FRIENDS.
+              </h2>
+            </div>
+            <p className="max-w-sm font-mono text-[11px] leading-6 text-[#666666]">
+              EVERY SITE IS UNIQUE. EVERY SITE WORKED.
+            </p>
+          </div>
+
+          <div className="mt-8 grid gap-px border border-black bg-black sm:grid-cols-2 lg:grid-cols-3">
+            {[
+              { img: '/example-marcus.jpg', name: 'MARCUS R.', event: 'ROOFTOP BAR, NYC', theme: 'THREAT LEVEL RED', result: 'SHOWED UP AT 11:42 PM' },
+              { img: '/example-sophie.jpg', name: 'SOPHIE L.', event: 'BIRTHDAY DINNER, LA', theme: 'FORMAL SUMMONS', result: 'CONFIRMED IN 8 MINUTES' },
+              { img: '/example-jake.jpg', name: 'JAKE M.', event: 'CONCERT, CHICAGO', theme: 'TERMINAL BREACH', result: 'CAVED AFTER READING SECTION 3' },
+              { img: '/example-priya.jpg', name: 'PRIYA S.', event: 'HOUSE PARTY, TORONTO', theme: 'CAMPAIGN BRIEF', result: 'ARRIVED WITH SNACKS AS PENANCE' },
+              { img: '/example-tyler.jpg', name: 'TYLER K.', event: 'GAME NIGHT, AUSTIN', theme: 'BREAKING NEWS', result: 'TEXTED "FINE" IN ALL CAPS' },
+              { img: '/example-emma.jpg', name: 'EMMA C.', event: 'BRUNCH, MIAMI', theme: 'CLASSIFIED FILE', result: 'ORDERED THE UBER MID-SCROLL' },
+            ].map((card) => (
+              <div key={card.name} className="group bg-white">
+                <div className="relative aspect-[16/10] overflow-hidden">
+                  <Image src={card.img} alt={card.name} fill className="object-cover transition duration-500 group-hover:scale-105" />
+                </div>
+                <div className="border-t border-[#e0e0e0] p-4">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-black">{card.name}</span>
+                    <span className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#39FF14]">{card.theme}</span>
+                  </div>
+                  <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.24em] text-[#666666]">{card.event}</p>
+                  <p className="mt-2 font-mono text-[11px] uppercase tracking-[0.2em] text-black">{card.result}</p>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       {/* EXAMPLE OUTPUT */}
       <section className="mx-auto max-w-7xl px-5 pb-16 sm:px-8 lg:px-10">
         <div className="border border-black">
