@@ -34,7 +34,7 @@ export function LandingPage() {
       {/* NAV */}
       <nav className="mx-auto flex max-w-7xl items-center justify-between border-b border-[#e0e0e0] px-5 py-4 sm:px-8 lg:px-10">
         <Link href="/" className="font-mono text-[11px] uppercase tracking-[0.35em]">PULLUP</Link>
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-4 sm:gap-6">
           <span className="hidden font-mono text-[10px] uppercase tracking-[0.3em] text-[#666666] sm:block">
             <Counter value={47} suffix="" /> FRIENDS CONVINCED TONIGHT
           </span>
@@ -47,14 +47,33 @@ export function LandingPage() {
         </div>
       </nav>
 
-      {/* HERO: PHONE WALL */}
-      <section className="relative py-16 sm:py-20 lg:py-28">
-        {/* Phone carousel */}
-        <div className="relative mx-auto flex max-w-6xl items-center justify-center gap-4 px-5 sm:gap-6 lg:gap-8">
+      {/* HERO — mobile: horizontal scroll of large phones. Desktop: fanned row */}
+      <section className="relative py-12 sm:py-20 lg:py-28">
+
+        {/* Mobile: horizontally scrollable, large phones */}
+        <div className="flex gap-4 overflow-x-auto px-5 pb-4 snap-x snap-mandatory sm:hidden"
+          style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}
+        >
+          {phones.map((phone) => (
+            <div key={phone.name} className="relative flex-shrink-0 w-[220px] snap-center">
+              <div className="relative aspect-[9/16] overflow-hidden border-2 border-black bg-black">
+                <Image src={phone.img} alt={phone.name} fill className="object-cover" priority />
+              </div>
+              <div className="mt-3 flex items-center justify-between">
+                <span className="font-mono text-[9px] uppercase tracking-[0.28em] text-black">{phone.name}</span>
+                <span className="font-mono text-[9px] uppercase tracking-[0.28em] text-[#39FF14]">{phone.theme}</span>
+              </div>
+            </div>
+          ))}
+        </div>
+        <p className="mt-2 px-5 text-center font-mono text-[9px] uppercase tracking-[0.3em] text-[#666666] sm:hidden">SWIPE TO SEE MORE</p>
+
+        {/* Desktop: fanned phone wall */}
+        <div className="relative mx-auto hidden max-w-6xl items-center justify-center gap-6 px-8 sm:flex lg:gap-8">
           {phones.map((phone, i) => (
             <div
               key={phone.name}
-              className="relative flex-shrink-0 w-[140px] sm:w-[170px] lg:w-[200px] transition-transform duration-500 hover:scale-105"
+              className="relative flex-shrink-0 w-[170px] lg:w-[200px] transition-transform duration-500 hover:scale-105"
               style={{
                 transform: `rotate(${phone.rotate})`,
                 zIndex: phone.z,
@@ -69,18 +88,18 @@ export function LandingPage() {
           ))}
         </div>
 
-        {/* Text overlay below phones */}
-        <div className="mx-auto mt-12 max-w-2xl text-center px-5 sm:mt-16">
+        {/* Headline */}
+        <div className="mx-auto mt-10 max-w-2xl text-center px-5 sm:mt-16">
           <h1 className="font-sans text-5xl font-black uppercase tracking-[-0.06em] sm:text-7xl lg:text-8xl">
             PULL UP.
           </h1>
-          <p className="mx-auto mt-4 max-w-md font-mono text-sm leading-7 text-[#666666]">
+          <p className="mx-auto mt-4 max-w-md font-mono text-xs leading-6 text-[#666666] sm:text-sm sm:leading-7">
             AI BUILDS A PERSONALIZED WEBSITE TO GUILT YOUR FRIEND INTO SHOWING UP. TAKES 6 MINUTES.
           </p>
-          <div className="mt-8">
+          <div className="mt-6 sm:mt-8">
             <Link
               href="/create"
-              className="border border-black bg-[#39FF14] px-8 py-4 font-mono text-[11px] uppercase tracking-[0.34em] transition hover:border-[#39FF14]"
+              className="inline-block border border-black bg-[#39FF14] px-8 py-4 font-mono text-[11px] uppercase tracking-[0.34em] transition hover:border-[#39FF14]"
             >
               BUILD A GUILT TRIP
             </Link>
@@ -89,51 +108,51 @@ export function LandingPage() {
       </section>
 
       {/* METRICS */}
-      <section className="mx-auto max-w-7xl px-5 pb-16 sm:px-8 lg:px-10">
+      <section className="mx-auto max-w-7xl px-5 pb-12 sm:px-8 sm:pb-16 lg:px-10">
         <div className="grid gap-px border border-black bg-black sm:grid-cols-3">
           {metrics.map((metric) => (
-            <div key={metric.label} className="bg-white p-5">
-              <div className="font-mono text-4xl font-bold tracking-[-0.06em] text-black">
+            <div key={metric.label} className="bg-white p-4 sm:p-5">
+              <div className="font-mono text-3xl font-bold tracking-[-0.06em] text-black sm:text-4xl">
                 <Counter value={metric.value} suffix={metric.suffix} />
               </div>
-              <p className="mt-2 font-mono text-[10px] uppercase tracking-[0.3em] text-[#666666]">{metric.label}</p>
+              <p className="mt-2 font-mono text-[9px] uppercase tracking-[0.3em] text-[#666666] sm:text-[10px]">{metric.label}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* HOW IT WORKS: 3 steps, tight */}
-      <section className="mx-auto max-w-7xl px-5 pb-16 sm:px-8 lg:px-10">
+      {/* HOW IT WORKS */}
+      <section className="mx-auto max-w-7xl px-5 pb-12 sm:px-8 sm:pb-16 lg:px-10">
         <div className="grid gap-px border border-black bg-black md:grid-cols-3">
           {[
             { num: '01', title: 'DESCRIBE', text: 'TELL THE ORACLE WHERE, WHEN, AND WHO.' },
             { num: '02', title: 'RESEARCH', text: 'AI FINDS THEIR JOB, SCHOOL, AND HISTORY.' },
             { num: '03', title: 'DEPLOY', text: 'SEND THE LINK. WATCH THEM CAVE.' },
           ].map((step) => (
-            <div key={step.num} className="bg-white p-5">
+            <div key={step.num} className="bg-white p-4 sm:p-5">
               <div className="flex items-center gap-3">
                 <span className="border border-black bg-[#39FF14] px-2 py-1 font-mono text-[10px] uppercase tracking-[0.3em]">{step.num}</span>
                 <span className="font-mono text-[11px] uppercase tracking-[0.3em]">{step.title}</span>
               </div>
-              <p className="mt-4 font-mono text-sm leading-7 text-[#666666]">{step.text}</p>
+              <p className="mt-3 font-mono text-xs leading-6 text-[#666666] sm:mt-4 sm:text-sm sm:leading-7">{step.text}</p>
             </div>
           ))}
         </div>
       </section>
 
-      {/* GALLERY */}
-      <section className="mx-auto max-w-7xl px-5 pb-16 sm:px-8 lg:px-10">
-        <div className="border-t border-black pt-10">
-          <div className="flex items-end justify-between mb-8">
+      {/* GALLERY — single column on mobile, full width cards */}
+      <section className="mx-auto max-w-7xl px-5 pb-12 sm:px-8 sm:pb-16 lg:px-10">
+        <div className="border-t border-black pt-8 sm:pt-10">
+          <div className="flex items-end justify-between mb-6 sm:mb-8">
             <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-[#666666]">RECENT DEPLOYMENTS</p>
-            <p className="font-mono text-[10px] uppercase tracking-[0.3em] text-[#666666]">EVERY SITE WORKED.</p>
+            <p className="hidden font-mono text-[10px] uppercase tracking-[0.3em] text-[#666666] sm:block">EVERY SITE WORKED.</p>
           </div>
 
-          <div className="grid gap-px border border-black bg-black sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-px border border-black bg-black grid-cols-1 sm:grid-cols-2 lg:grid-cols-3">
             {gallery.map((card) => (
               <div key={card.name} className="group bg-white">
-                <div className="relative aspect-[9/14] overflow-hidden">
-                  <Image src={card.img} alt={card.name} fill className="object-cover transition duration-500 group-hover:scale-105" />
+                <div className="relative aspect-[9/12] sm:aspect-[9/14] overflow-hidden">
+                  <Image src={card.img} alt={card.name} fill className="object-cover object-top transition duration-500 group-hover:scale-105" />
                 </div>
                 <div className="border-t border-[#e0e0e0] p-4">
                   <div className="flex items-center justify-between">
@@ -150,15 +169,15 @@ export function LandingPage() {
       </section>
 
       {/* FINAL CTA */}
-      <section className="mx-auto max-w-7xl px-5 pb-20 sm:px-8 lg:px-10">
-        <div className="border border-black p-10 text-center sm:p-16">
-          <h2 className="font-sans text-4xl font-black uppercase tracking-[-0.06em] sm:text-6xl">
+      <section className="mx-auto max-w-7xl px-5 pb-16 sm:px-8 sm:pb-20 lg:px-10">
+        <div className="border border-black p-8 text-center sm:p-16">
+          <h2 className="font-sans text-3xl font-black uppercase tracking-[-0.06em] sm:text-4xl lg:text-6xl">
             STOP ASKING NICELY.
           </h2>
-          <div className="mt-8">
+          <div className="mt-6 sm:mt-8">
             <Link
               href="/create"
-              className="border border-black bg-[#39FF14] px-8 py-5 font-mono text-[12px] uppercase tracking-[0.34em] transition hover:border-[#39FF14]"
+              className="inline-block border border-black bg-[#39FF14] px-6 py-4 font-mono text-[11px] uppercase tracking-[0.34em] transition hover:border-[#39FF14] sm:px-8 sm:py-5 sm:text-[12px]"
             >
               START ORACLE SESSION
             </Link>
