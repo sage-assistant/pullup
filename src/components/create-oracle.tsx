@@ -1,10 +1,9 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState, useCallback } from 'react';
 
-import { getPhaseForStep, ORACLE_STEPS, parseOutrageLevel, parseSquad } from '@/lib/oracle-flow';
-import type { NightPlan, OraclePhase, ResearchTarget } from '@/lib/types';
+import type { NightPlan, ResearchTarget } from '@/lib/types';
 
 type ChatMessage = {
   id: string;
@@ -13,31 +12,43 @@ type ChatMessage = {
   kind?: 'message' | 'research' | 'progress' | 'result';
 };
 
-const INITIAL_STATE: NightPlan = {
+type PlanState = {
+  venueName: string;
+  city: string;
+  time: string;
+  targetName: string;
+  targetCity: string;
+  targetResearched: boolean;
+  squad: string[];
+  excuse: string;
+  context: string;
+  outrageLevel: number;
+  researchResult: ResearchTarget | null;
+};
+
+const INITIAL_PLAN: PlanState = {
   venueName: '',
-  venueAddress: '',
   city: '',
   time: '',
-  target: {
-    name: '',
-    city: '',
-    facts: [],
-  },
+  targetName: '',
+  targetCity: '',
+  targetResearched: false,
   squad: [],
   excuse: '',
   context: '',
   outrageLevel: 7,
+  researchResult: null,
 };
 
-const progressLabels = ['Researching target', 'Writing personalized roasts', 'Building timelines', 'Deploying guilt payload'];
+const progressLabels = ['Researching target', 'Writing personalized roasts', 'Building interactive sections', 'Deploying guilt payload'];
 
 function makeId() {
   return `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 8)}`;
 }
 
-function toOracleMessages(messages: ChatMessage[]) {
+function toSimpleMessages(messages: ChatMessage[]) {
   return messages
-    .filter((message) => message.kind !== 'progress' && message.kind !== 'research' && message.kind !== 'result')
+    .filter((m) => m.kind !== 'progress' && m.kind !== 'research' && m.kind !== 'result')
     .map(({ role, content }) => ({ role, content }));
 }
 
@@ -47,195 +58,185 @@ export function CreateOracle() {
       id: makeId(),
       role: 'assistant',
       content:
-        'Welcome to PULLUP. I am the Oracle, which means I ask invasive questions for the public good. What are we trying to get your friend to show up for tonight?',
+        'Welcome to PULLUP. I am the Oracle. Tell me everything: where are you going tonight, who is bailing, and why they think that is acceptable. The more you give me, the faster I can build something devastating.',
     },
   ]);
   const [input, setInput] = useState('');
-  const [stepIndex, setStepIndex] = useState(0);
-  const [plan, setPlan] = useState<NightPlan>(INITIAL_STATE);
+  const [plan, setPlan] = useState<PlanState>(INITIAL_PLAN);
   const [isStreaming, setIsStreaming] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [typing, setTyping] = useState(false);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const scrollerRef = useRef<HTMLDivElement>(null);
+  const didResearchRef = useRef(false);
 
-  const phase: OraclePhase = resultUrl ? 'complete' : getPhaseForStep(stepIndex);
+  const hasMinimum = !!(plan.venueName && plan.targetName && (plan.city || plan.targetCity));
+  const phase = resultUrl
+    ? 'complete'
+    : isGenerating
+      ? 'generating'
+      : hasMinimum
+        ? 'ready'
+        : plan.targetName
+          ? 'researching'
+          : 'gathering';
 
   useEffect(() => {
     scrollerRef.current?.scrollTo({ top: scrollerRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, typing]);
 
-  async function streamOracle(nextMessages: ChatMessage[], currentPhase: OraclePhase) {
+  // Extract structured info from conversation
+  const extractInfo = useCallback(async (msgs: ChatMessage[]): Promise<Partial<PlanState>> => {
+    try {
+      const res = await fetch('/api/extract', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ messages: toSimpleMessages(msgs) }),
+      });
+      if (!res.ok) return {};
+      return await res.json();
+    } catch {
+      return {};
+    }
+  }, []);
+
+  // Research the target person
+  const runResearch = useCallback(async (name: string, city: string): Promise<ResearchTarget | null> => {
+    try {
+      const res = await fetch('/api/research', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, city }),
+      });
+      if (!res.ok) return null;
+      const data = await res.json();
+
+      setMessages((current) => [
+        ...current,
+        {
+          id: makeId(),
+          role: 'system',
+          kind: 'research',
+          content: `Research hit: ${data.summary}`,
+        },
+      ]);
+
+      return {
+        name,
+        city,
+        summary: data.summary,
+        title: data.result?.title,
+        company: data.result?.company,
+        school: data.result?.school,
+        facts: data.result?.facts || [],
+        confidenceNote: data.result?.confidenceNote,
+      };
+    } catch {
+      return null;
+    }
+  }, []);
+
+  // Stream Oracle response
+  const streamOracle = useCallback(async (msgs: ChatMessage[], currentPlan: PlanState): Promise<string> => {
     setTyping(true);
     setIsStreaming(true);
 
     const assistantId = makeId();
     setMessages((current) => [...current, { id: assistantId, role: 'assistant', content: '' }]);
 
-    const response = await fetch('/api/oracle', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        phase: currentPhase,
-        messages: toOracleMessages(nextMessages),
-      }),
-    });
-
-    if (!response.ok || !response.body) {
-      setTyping(false);
-      setIsStreaming(false);
-      setMessages((current) =>
-        current.map((message) =>
-          message.id === assistantId
-            ? {
-                ...message,
-                content: 'The Oracle hit a wall. Try that again so I can continue professionally judging your friend.',
-              }
-            : message,
-        ),
-      );
-      return;
-    }
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
     let aggregate = '';
+    try {
+      const response = await fetch('/api/oracle', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          planState: currentPlan,
+          messages: toSimpleMessages(msgs),
+        }),
+      });
 
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-      aggregate += decoder.decode(value, { stream: true });
+      if (!response.ok || !response.body) throw new Error('Oracle failed');
+
+      const reader = response.body.getReader();
+      const decoder = new TextDecoder();
+
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        aggregate += decoder.decode(value, { stream: true });
+        const displayText = aggregate.replace(/BUILD_NOW\s*$/i, '').trim();
+        setMessages((current) =>
+          current.map((m) => (m.id === assistantId ? { ...m, content: displayText } : m)),
+        );
+      }
+    } catch {
+      aggregate = 'The Oracle hit a wall. Try again.';
       setMessages((current) =>
-        current.map((message) => (message.id === assistantId ? { ...message, content: aggregate } : message)),
+        current.map((m) => (m.id === assistantId ? { ...m, content: aggregate } : m)),
       );
     }
 
     setTyping(false);
     setIsStreaming(false);
-  }
+    return aggregate;
+  }, []);
 
-  async function runResearch(target: ResearchTarget) {
-    const response = await fetch('/api/research', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name: target.name, city: target.city }),
-    });
-    const data = await response.json();
-
-    const researchedTarget: ResearchTarget = {
-      ...target,
-      summary: data.summary,
-      title: data.result?.title,
-      company: data.result?.company,
-      school: data.result?.school,
-      facts: data.result?.facts || [],
-      confidenceNote: data.result?.confidenceNote,
-    };
-
-    setPlan((current) => ({ ...current, target: researchedTarget }));
-    setMessages((current) => [
-      ...current,
-      {
-        id: makeId(),
-        role: 'system',
-        kind: 'research',
-        content: `Research hit: ${data.summary}`,
-      },
-    ]);
-
-    return researchedTarget;
-  }
-
-  function applyAnswer(answer: string) {
-    const stepKey = ORACLE_STEPS[stepIndex]?.key;
-    if (!stepKey) return plan;
-
-    if (stepKey === 'venueName') {
-      return { ...plan, venueName: answer, venueAddress: `${answer}, ${plan.city || 'TBD'}` };
-    }
-    if (stepKey === 'city') {
-      return { ...plan, city: answer, venueAddress: plan.venueName ? `${plan.venueName}, ${answer}` : answer };
-    }
-    if (stepKey === 'time') {
-      return { ...plan, time: answer };
-    }
-    if (stepKey === 'targetName') {
-      return { ...plan, target: { ...plan.target, name: answer } };
-    }
-    if (stepKey === 'targetCity') {
-      return { ...plan, target: { ...plan.target, city: answer || plan.city } };
-    }
-    if (stepKey === 'squad') {
-      return { ...plan, squad: parseSquad(answer) };
-    }
-    if (stepKey === 'excuse') {
-      return { ...plan, excuse: answer };
-    }
-    if (stepKey === 'context') {
-      return { ...plan, context: answer };
-    }
-    if (stepKey === 'outrageLevel') {
-      return { ...plan, outrageLevel: parseOutrageLevel(answer) };
-    }
-    return plan;
-  }
-
-  async function generateSite(finalPlan: NightPlan) {
+  // Generate the final site
+  const generateSite = useCallback(async (finalPlan: PlanState) => {
     setIsGenerating(true);
     setMessages((current) => [
       ...current,
-      {
-        id: makeId(),
-        role: 'system',
-        kind: 'progress',
-        content: progressLabels.join('\n'),
-      },
+      { id: makeId(), role: 'system', kind: 'progress', content: progressLabels.join('\n') },
     ]);
 
-    const response = await fetch('/api/generate', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        target: finalPlan.target,
-        venue: {
-          name: finalPlan.venueName,
-          address: finalPlan.venueAddress,
-          city: finalPlan.city,
-          closingTime: finalPlan.time,
-        },
-        squad: finalPlan.squad,
-        excuse: finalPlan.excuse,
-        context: finalPlan.context,
-        outrageLevel: finalPlan.outrageLevel,
-      }),
-    });
+    try {
+      const target = finalPlan.researchResult || {
+        name: finalPlan.targetName,
+        city: finalPlan.targetCity || finalPlan.city,
+      };
 
-    const data = await response.json();
-    setIsGenerating(false);
+      const response = await fetch('/api/generate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          target,
+          venue: {
+            name: finalPlan.venueName,
+            address: `${finalPlan.venueName}, ${finalPlan.city}`,
+            city: finalPlan.city,
+            closingTime: finalPlan.time || '2:00 AM',
+          },
+          squad: (finalPlan.squad || []).map((name: string) => ({ name, role: 'Confirmed' })),
+          excuse: finalPlan.excuse || 'Being lame',
+          context: finalPlan.context || '',
+          outrageLevel: finalPlan.outrageLevel || 7,
+        }),
+      });
 
-    if (!response.ok) {
+      const data = await response.json();
+      setIsGenerating(false);
+
+      if (!response.ok) {
+        setMessages((current) => [
+          ...current,
+          { id: makeId(), role: 'assistant', content: data.error || 'Generation failed. Your friend lives another day.' },
+        ]);
+        return;
+      }
+
+      setResultUrl(data.url);
       setMessages((current) => [
         ...current,
-        {
-          id: makeId(),
-          role: 'assistant',
-          content: data.error || 'Site generation failed. Your friend lives to stall another minute.',
-        },
+        { id: makeId(), role: 'assistant', kind: 'result', content: `Done. Send this link immediately: ${data.url}` },
       ]);
-      return;
+    } catch {
+      setIsGenerating(false);
+      setMessages((current) => [
+        ...current,
+        { id: makeId(), role: 'assistant', content: 'Generation failed. Try again.' },
+      ]);
     }
-
-    setResultUrl(data.url);
-    setMessages((current) => [
-      ...current,
-      {
-        id: makeId(),
-        role: 'assistant',
-        kind: 'result',
-        content: `Weaponized. Send this immediately: ${data.url}`,
-      },
-    ]);
-  }
+  }, []);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -247,24 +248,51 @@ export function CreateOracle() {
     setMessages(nextMessages);
     setInput('');
 
-    let nextPlan = applyAnswer(answer);
-    setPlan(nextPlan);
+    // Extract info from conversation in parallel with Oracle response
+    const extractPromise = extractInfo(nextMessages);
 
-    if (ORACLE_STEPS[stepIndex]?.key === 'targetCity') {
-      nextPlan = { ...nextPlan, target: await runResearch(nextPlan.target) };
-      setPlan(nextPlan);
+    // Get current plan for Oracle context
+    let currentPlan = { ...plan };
+
+    // Run Oracle
+    const oracleResponse = await streamOracle(nextMessages, currentPlan);
+
+    // Apply extracted info
+    const extracted = await extractPromise;
+    const updatedPlan: PlanState = {
+      ...currentPlan,
+      venueName: extracted.venueName || currentPlan.venueName || '',
+      city: extracted.city || currentPlan.city || '',
+      time: extracted.time || currentPlan.time || '',
+      targetName: extracted.targetName || currentPlan.targetName || '',
+      targetCity: extracted.targetCity || extracted.city || currentPlan.targetCity || currentPlan.city || '',
+      squad: (extracted.squad as string[]) || currentPlan.squad || [],
+      excuse: (extracted.excuse as string) || currentPlan.excuse || '',
+      context: (extracted.context as string) || currentPlan.context || '',
+      outrageLevel: (extracted.outrageLevel as number) || currentPlan.outrageLevel || 7,
+      targetResearched: currentPlan.targetResearched,
+      researchResult: currentPlan.researchResult,
+    };
+
+    // If we have a target name and haven't researched yet, do it now
+    if (updatedPlan.targetName && !updatedPlan.targetResearched && !didResearchRef.current) {
+      didResearchRef.current = true;
+      const researchCity = updatedPlan.targetCity || updatedPlan.city;
+      if (researchCity) {
+        const result = await runResearch(updatedPlan.targetName, researchCity);
+        if (result) {
+          updatedPlan.researchResult = result;
+          updatedPlan.targetResearched = true;
+        }
+      }
     }
 
-    const nextStepIndex = stepIndex + 1;
-    setStepIndex(nextStepIndex);
+    setPlan(updatedPlan);
 
-    if (nextStepIndex >= ORACLE_STEPS.length) {
-      await streamOracle(nextMessages, 'generate');
-      await generateSite(nextPlan);
-      return;
+    // Check if Oracle signaled BUILD_NOW
+    if (oracleResponse.includes('BUILD_NOW')) {
+      await generateSite(updatedPlan);
     }
-
-    await streamOracle(nextMessages, getPhaseForStep(nextStepIndex));
   }
 
   return (
@@ -277,8 +305,10 @@ export function CreateOracle() {
           <h1 className="mt-2 font-serif text-3xl tracking-[-0.04em] text-white sm:text-4xl">Oracle Session</h1>
         </div>
         <div className="text-right">
-          <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-white/38">phase</p>
-          <p className="mt-2 text-sm text-white/70">{phase}</p>
+          <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-white/38">status</p>
+          <p className="mt-2 text-sm text-white/70">
+            {phase === 'complete' ? 'Deployed' : phase === 'generating' ? 'Building...' : phase === 'ready' ? 'Ready to build' : 'Gathering intel'}
+          </p>
         </div>
       </div>
 
@@ -293,11 +323,13 @@ export function CreateOracle() {
             </div>
             <div className="rounded-[1.4rem] border border-white/8 bg-white/[0.03] p-4">
               <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-white/40">Target</p>
-              <p className="mt-3 text-white">{plan.target.name || 'Name pending'}</p>
+              <p className="mt-3 text-white">{plan.targetName || 'Name pending'}</p>
               <p className="mt-1 text-white/50">
-                {[plan.target.title, plan.target.company].filter(Boolean).join(' at ') || plan.target.city || 'Research pending'}
+                {plan.researchResult
+                  ? [plan.researchResult.title, plan.researchResult.company].filter(Boolean).join(' at ')
+                  : plan.targetCity || 'Research pending'}
               </p>
-              {plan.target.school ? <p className="mt-1 text-white/50">{plan.target.school}</p> : null}
+              {plan.researchResult?.school ? <p className="mt-1 text-white/50">{plan.researchResult.school}</p> : null}
             </div>
             <div className="rounded-[1.4rem] border border-white/8 bg-white/[0.03] p-4">
               <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-white/40">Ammo</p>
@@ -306,8 +338,8 @@ export function CreateOracle() {
               <p className="mt-2 text-white/50">Outrage level {plan.outrageLevel}/10</p>
             </div>
             {resultUrl ? (
-              <a href={resultUrl} className="block rounded-[1.4rem] border border-[var(--accent-pink)]/25 bg-[var(--accent-pink)]/8 p-4 text-white transition hover:bg-[var(--accent-pink)]/12">
-                <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-[var(--accent-pink)]">Deploy Result</p>
+              <a href={resultUrl} target="_blank" rel="noopener noreferrer" className="block rounded-[1.4rem] border border-[var(--accent-pink)]/25 bg-[var(--accent-pink)]/8 p-4 text-white transition hover:bg-[var(--accent-pink)]/12">
+                <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-[var(--accent-pink)]">Deployed</p>
                 <p className="mt-3 text-sm leading-7">Open the generated site</p>
               </a>
             ) : null}
@@ -342,6 +374,21 @@ export function CreateOracle() {
                 );
               }
 
+              if (message.kind === 'result') {
+                const url = message.content.match(/https?:\/\/\S+/)?.[0];
+                return (
+                  <div key={message.id} className="rounded-[1.5rem] border border-[var(--accent-pink)]/30 bg-[var(--accent-pink)]/8 p-5 text-center">
+                    <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-[var(--accent-pink)]">Site Deployed</p>
+                    <p className="mt-3 text-lg font-semibold text-white">Your guilt trip is live.</p>
+                    {url && (
+                      <a href={url} target="_blank" rel="noopener noreferrer" className="mt-4 inline-block rounded-full bg-[linear-gradient(135deg,var(--accent-pink),var(--accent-purple),var(--accent-blue))] px-6 py-3 text-sm font-semibold text-white transition hover:translate-y-[-1px]">
+                        Open the Site
+                      </a>
+                    )}
+                  </div>
+                );
+              }
+
               const isAssistant = message.role === 'assistant';
               return (
                 <div key={message.id} className={`flex ${isAssistant ? 'justify-start' : 'justify-end'}`}>
@@ -361,7 +408,7 @@ export function CreateOracle() {
             {typing ? (
               <div className="flex justify-start">
                 <div className="rounded-full border border-white/8 bg-white/[0.04] px-4 py-3 text-sm text-white/55">
-                  Oracle is preparing a rude follow-up
+                  Oracle is working...
                 </div>
               </div>
             ) : null}
@@ -372,7 +419,7 @@ export function CreateOracle() {
               <input
                 value={input}
                 onChange={(event) => setInput(event.target.value)}
-                placeholder="Type your answer so the Oracle can keep building"
+                placeholder={hasMinimum ? 'Add more details or say "build it"' : 'Tell the Oracle everything...'}
                 className="min-h-13 flex-1 rounded-full border border-white/10 bg-black/20 px-5 text-sm text-white outline-none transition placeholder:text-white/28 focus:border-white/22"
               />
               <button
@@ -380,7 +427,7 @@ export function CreateOracle() {
                 disabled={isStreaming || isGenerating}
                 className="rounded-full bg-[linear-gradient(135deg,var(--accent-pink),var(--accent-purple),var(--accent-blue))] px-6 py-3 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-50"
               >
-                {isGenerating ? 'Generating site' : isStreaming ? 'Oracle speaking' : 'Send'}
+                {isGenerating ? 'Generating...' : isStreaming ? 'Oracle speaking...' : 'Send'}
               </button>
             </div>
           </form>
