@@ -314,7 +314,7 @@ export function CreateOracle() {
       </header>
 
       <div className="grid flex-1 gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(18rem,0.85fr)]">
-        <section className="order-2 flex min-h-[70vh] flex-col border border-black lg:order-1">
+        <section className="order-1 flex min-h-[70vh] flex-col border border-black lg:order-1">
           <div className="border-b border-black px-4 py-3 font-mono text-[11px] uppercase tracking-[0.34em] text-[#666666] sm:px-5">
             TERMINAL
           </div>
@@ -415,7 +415,7 @@ export function CreateOracle() {
           </form>
         </section>
 
-        <aside className="order-1 border border-black bg-[#f8f8f8] p-4 lg:order-2">
+        <aside className="order-2 border border-black bg-[#f8f8f8] p-4 lg:order-2">
           <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-[#666666]">BUILD STATE</p>
           <div className="mt-5 space-y-4 font-mono text-sm">
             <div className="border border-black bg-white p-4">
