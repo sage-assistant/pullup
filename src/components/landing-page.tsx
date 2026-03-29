@@ -147,15 +147,15 @@ export function LandingPage() {
 
           <div className="mt-8 grid gap-px border border-black bg-black sm:grid-cols-2 lg:grid-cols-3">
             {[
-              { img: '/example-marcus.jpg', name: 'MARCUS R.', event: 'ROOFTOP BAR, NYC', theme: 'THREAT LEVEL RED', result: 'SHOWED UP AT 11:42 PM' },
-              { img: '/example-sophie.jpg', name: 'SOPHIE L.', event: 'BIRTHDAY DINNER, LA', theme: 'FORMAL SUMMONS', result: 'CONFIRMED IN 8 MINUTES' },
-              { img: '/example-jake.jpg', name: 'JAKE M.', event: 'CONCERT, CHICAGO', theme: 'TERMINAL BREACH', result: 'CAVED AFTER READING SECTION 3' },
-              { img: '/example-priya.jpg', name: 'PRIYA S.', event: 'HOUSE PARTY, TORONTO', theme: 'CAMPAIGN BRIEF', result: 'ARRIVED WITH SNACKS AS PENANCE' },
-              { img: '/example-tyler.jpg', name: 'TYLER K.', event: 'GAME NIGHT, AUSTIN', theme: 'BREAKING NEWS', result: 'TEXTED "FINE" IN ALL CAPS' },
-              { img: '/example-emma.jpg', name: 'EMMA C.', event: 'BRUNCH, MIAMI', theme: 'CLASSIFIED FILE', result: 'ORDERED THE UBER MID-SCROLL' },
+              { img: '/mobile-marcus.jpg', name: 'MARCUS R.', event: 'ROOFTOP BAR, NYC', theme: 'THREAT LEVEL RED', result: 'SHOWED UP AT 11:42 PM' },
+              { img: '/mobile-sophie.jpg', name: 'SOPHIE L.', event: 'BIRTHDAY DINNER, LA', theme: 'FORMAL SUMMONS', result: 'CONFIRMED IN 8 MINUTES' },
+              { img: '/mobile-jake.jpg', name: 'JAKE M.', event: 'CONCERT, CHICAGO', theme: 'TERMINAL BREACH', result: 'CAVED AFTER READING SECTION 3' },
+              { img: '/mobile-priya.jpg', name: 'PRIYA S.', event: 'HOUSE PARTY, TORONTO', theme: 'CAMPAIGN BRIEF', result: 'ARRIVED WITH SNACKS AS PENANCE' },
+              { img: '/mobile-tyler.jpg', name: 'TYLER K.', event: 'GAME NIGHT, AUSTIN', theme: 'BREAKING NEWS', result: 'TEXTED "FINE" IN ALL CAPS' },
+              { img: '/mobile-emma.jpg', name: 'EMMA C.', event: 'BRUNCH, MIAMI', theme: 'CLASSIFIED FILE', result: 'ORDERED THE UBER MID-SCROLL' },
             ].map((card) => (
               <div key={card.name} className="group bg-white">
-                <div className="relative aspect-[16/10] overflow-hidden">
+                <div className="relative aspect-[9/14] overflow-hidden">
                   <Image src={card.img} alt={card.name} fill className="object-cover transition duration-500 group-hover:scale-105" />
                 </div>
                 <div className="border-t border-[#e0e0e0] p-4">
@@ -168,62 +168,6 @@ export function LandingPage() {
                 </div>
               </div>
             ))}
-          </div>
-        </div>
-      </section>
-
-      {/* EXAMPLE OUTPUT */}
-      <section className="mx-auto max-w-7xl px-5 pb-16 sm:px-8 lg:px-10">
-        <div className="border border-black">
-          <div className="border-b border-black p-5">
-            <p className="font-mono text-[10px] uppercase tracking-[0.35em] text-[#666666]">EXAMPLE OUTPUT</p>
-            <h2 className="mt-3 font-sans text-3xl font-black uppercase tracking-[-0.06em] sm:text-4xl">
-              WHAT YOUR FRIEND RECEIVES
-            </h2>
-          </div>
-          <div className="grid lg:grid-cols-2">
-            <div className="border-b border-black p-6 lg:border-b-0 lg:border-r">
-              <div className="space-y-4 font-mono text-sm">
-                <div className="border border-black p-4">
-                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#666666]">ORACLE &gt;</p>
-                  <p className="mt-2 text-black">Jordan Chen. Product Manager at Shopify. Queen&apos;s University BComm, 2019. Last public excuse: &quot;early meeting tomorrow.&quot; That meeting is at 11 AM, Jordan.</p>
-                </div>
-                <div className="border border-black p-4">
-                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#666666]">EXCUSE ANALYSIS</p>
-                  <p className="mt-2 text-black">&quot;I&apos;m tired&quot; scored 0.02/1.00 on the validity index.</p>
-                  <p className="mt-1 font-mono text-[#39FF14]">REJECTED.</p>
-                </div>
-                <div className="border border-[#39FF14] p-4">
-                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#666666]">COUNTDOWN</p>
-                  <p className="mt-2 text-3xl font-bold tracking-[-0.04em] text-black">04:22:07</p>
-                  <p className="mt-1 text-[#666666]">UNTIL LAST CALL</p>
-                </div>
-              </div>
-            </div>
-            <div className="p-6">
-              <div className="space-y-4 font-mono text-sm">
-                <div className="border border-black p-4">
-                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#666666]">SQUAD ROSTER</p>
-                  <div className="mt-3 space-y-2">
-                    <div className="flex justify-between"><span>MINA K.</span><span className="text-[#39FF14]">CONFIRMED</span></div>
-                    <div className="flex justify-between"><span>JULES R.</span><span className="text-[#39FF14]">CONFIRMED</span></div>
-                    <div className="flex justify-between"><span>PRIYA S.</span><span className="text-[#39FF14]">CONFIRMED</span></div>
-                    <div className="flex justify-between border-t border-[#e0e0e0] pt-2"><span>JORDAN C.</span><span className="text-[red]">PENDING</span></div>
-                  </div>
-                </div>
-                <div className="border border-black p-4">
-                  <p className="text-[10px] uppercase tracking-[0.28em] text-[#666666]">PETITION</p>
-                  <p className="mt-2 text-black">12 SIGNATURES COLLECTED</p>
-                  <p className="mt-1 text-[#666666]">INCLUDING JORDAN&apos;S UBER DRIVER</p>
-                </div>
-                <Link
-                  href="/create"
-                  className="block border border-black bg-[#39FF14] p-4 text-center text-[11px] uppercase tracking-[0.3em] transition hover:border-[#39FF14]"
-                >
-                  BUILD ONE NOW
-                </Link>
-              </div>
-            </div>
           </div>
         </div>
       </section>
