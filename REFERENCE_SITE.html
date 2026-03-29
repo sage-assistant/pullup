@@ -1,0 +1,656 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>#paid | Campaign Brief: Get Adam to Coda</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Mono:wght@400;700&family=DM+Serif+Display&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--bg:#0a0a0f;--surface:#12121a;--surface2:#1a1a25;--border:#222233;
+--text:#e8e8f0;--text2:#8888aa;--text3:#555566;
+--pink:#ff2d78;--blue:#3b82f6;--purple:#8b5cf6;--cyan:#06b6d4;
+--green:#10b981;--orange:#f59e0b;--red:#ef4444;
+--gradient:linear-gradient(135deg,var(--pink),var(--purple),var(--blue));
+}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;-webkit-font-smoothing:antialiased}
+::selection{background:var(--pink);color:#fff}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;background:rgba(10,10,15,.85);backdrop-filter:blur(20px);border-bottom:1px solid var(--border);padding:0 40px;height:64px;display:flex;align-items:center;justify-content:space-between}
+.nav-logo{font-weight:800;font-size:18px;letter-spacing:-0.5px}
+.nav-logo span{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.nav-tag{font-size:11px;color:var(--text3);font-family:'Space Mono',monospace;letter-spacing:1px;text-transform:uppercase}
+.nav-badge{background:var(--pink);color:#fff;font-size:10px;font-family:'Space Mono',monospace;padding:4px 12px;border-radius:20px;letter-spacing:1px;text-transform:uppercase;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.6}}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;padding:120px 40px 80px;position:relative;overflow:hidden}
+.hero::before{content:'';position:absolute;inset:0;background:url('campaign-hero.jpg') center/cover no-repeat;opacity:.15}
+.hero::after{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 0%,var(--bg) 75%)}
+.hero-content{position:relative;z-index:1;max-width:800px}
+.hero-eyebrow{display:inline-flex;align-items:center;gap:8px;background:var(--surface);border:1px solid var(--border);padding:8px 20px;border-radius:50px;font-size:12px;color:var(--text2);margin-bottom:30px;font-family:'Space Mono',monospace;letter-spacing:1px}
+.hero-eyebrow .dot{width:8px;height:8px;border-radius:50%;background:var(--pink);animation:pulse 1.5s infinite}
+.hero h1{font-family:'DM Serif Display',serif;font-size:clamp(36px,6vw,72px);line-height:1.1;margin-bottom:24px;letter-spacing:-1px}
+.hero h1 .gradient{background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p{font-size:clamp(15px,1.8vw,18px);color:var(--text2);line-height:1.7;max-width:600px;margin:0 auto 40px}
+.hero-cta{display:inline-flex;gap:12px;flex-wrap:wrap;justify-content:center}
+.btn{padding:14px 32px;border-radius:10px;font-size:14px;font-weight:600;cursor:pointer;transition:all .3s;border:none;font-family:'Inter',sans-serif;text-decoration:none;display:inline-block}
+.btn-primary{background:var(--gradient);color:#fff}
+.btn-primary:hover{transform:translateY(-2px);box-shadow:0 8px 30px rgba(255,45,120,.3)}
+.btn-secondary{background:transparent;color:var(--text);border:1px solid var(--border)}
+.btn-secondary:hover{border-color:var(--pink);color:var(--pink)}
+
+/* SECTIONS */
+.section{padding:100px 40px;max-width:1100px;margin:0 auto}
+.section-sm{max-width:800px}
+.section-eyebrow{font-family:'Space Mono',monospace;font-size:11px;letter-spacing:3px;color:var(--pink);text-transform:uppercase;margin-bottom:16px}
+.section-title{font-family:'DM Serif Display',serif;font-size:clamp(28px,4vw,48px);margin-bottom:20px;line-height:1.15;letter-spacing:-0.5px}
+.section-desc{font-size:16px;color:var(--text2);line-height:1.8;margin-bottom:40px;max-width:650px}
+
+/* METRIC CARDS */
+.metrics-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:40px 0}
+.metric-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;transition:all .4s}
+.metric-card:hover{border-color:var(--pink);transform:translateY(-4px);box-shadow:0 12px 40px rgba(255,45,120,.08)}
+.metric-card .metric-label{font-size:11px;letter-spacing:2px;color:var(--text3);text-transform:uppercase;font-family:'Space Mono',monospace;margin-bottom:10px}
+.metric-card .metric-value{font-size:36px;font-weight:800;margin-bottom:4px;letter-spacing:-1px}
+.metric-card .metric-change{font-size:12px;font-family:'Space Mono',monospace}
+.metric-card .metric-sub{font-size:12px;color:var(--text3);margin-top:6px;line-height:1.4}
+.metric-up{color:var(--green)}
+.metric-down{color:var(--red)}
+
+/* BRIEF CARD */
+.brief{background:var(--surface);border:1px solid var(--border);border-radius:20px;overflow:hidden;margin:40px 0}
+.brief-header{padding:30px 35px 20px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.brief-header h3{font-size:18px;font-weight:700}
+.brief-status{font-size:11px;font-family:'Space Mono',monospace;padding:6px 14px;border-radius:20px;letter-spacing:1px;text-transform:uppercase}
+.status-live{background:rgba(16,185,129,.15);color:var(--green);border:1px solid rgba(16,185,129,.2)}
+.status-critical{background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.2)}
+.status-pending{background:rgba(245,158,11,.15);color:var(--orange);border:1px solid rgba(245,158,11,.2)}
+.brief-body{padding:30px 35px}
+.brief-row{display:flex;gap:20px;padding:14px 0;border-bottom:1px solid rgba(34,34,51,.5);align-items:flex-start}
+.brief-row:last-child{border-bottom:none}
+.brief-label{font-size:12px;font-family:'Space Mono',monospace;color:var(--text3);letter-spacing:1px;text-transform:uppercase;min-width:140px;flex-shrink:0;padding-top:2px}
+.brief-value{font-size:14px;color:var(--text2);line-height:1.6}
+.brief-value strong{color:var(--text)}
+
+/* CREATOR CARDS */
+.creator-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:16px;margin:40px 0}
+.creator-card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:28px;text-align:center;transition:all .3s;position:relative;overflow:hidden}
+.creator-card:hover{border-color:var(--purple);transform:translateY(-3px)}
+.creator-card.target{border-color:var(--pink);box-shadow:0 0 40px rgba(255,45,120,.1)}
+.creator-card.target::before{content:'TARGET';position:absolute;top:12px;right:12px;font-family:'Space Mono',monospace;font-size:9px;letter-spacing:2px;color:var(--pink);background:rgba(255,45,120,.1);padding:3px 10px;border-radius:10px}
+.creator-avatar{width:64px;height:64px;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;font-size:28px}
+.creator-name{font-size:16px;font-weight:700;margin-bottom:4px}
+.creator-role{font-size:11px;color:var(--text3);font-family:'Space Mono',monospace;letter-spacing:1px;text-transform:uppercase;margin-bottom:12px}
+.creator-stat{font-size:12px;color:var(--text2);padding:4px 0}
+.creator-stat span{color:var(--green);font-weight:600}
+.creator-stat.pending span{color:var(--orange)}
+.creator-stat.danger span{color:var(--red)}
+
+/* TIMELINE */
+.timeline{margin:40px 0;position:relative}
+.timeline::before{content:'';position:absolute;left:20px;top:0;bottom:0;width:2px;background:var(--border)}
+.timeline-item{display:flex;gap:24px;padding:20px 0;position:relative}
+.timeline-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:5px;margin-left:15px;position:relative;z-index:1}
+.timeline-content{flex:1}
+.timeline-time{font-size:11px;font-family:'Space Mono',monospace;color:var(--text3);letter-spacing:1px;margin-bottom:4px}
+.timeline-text{font-size:14px;color:var(--text2);line-height:1.6}
+.timeline-text strong{color:var(--text)}
+.timeline-text .alert{color:var(--red);font-weight:600}
+.timeline-text .good{color:var(--green)}
+
+/* SENTIMENT ANALYZER */
+.analyzer{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px;margin:40px 0;text-align:center}
+.analyzer h3{font-size:22px;font-weight:700;margin-bottom:6px}
+.analyzer>p{font-size:13px;color:var(--text3);margin-bottom:25px}
+.analyzer-display{background:var(--bg);border:1px solid var(--border);padding:24px;border-radius:12px;font-family:'Space Mono',monospace;font-size:14px;color:var(--orange);min-height:60px;display:flex;align-items:center;justify-content:center;margin-bottom:15px;transition:all .3s}
+#analyzerInput{width:100%;max-width:400px;padding:12px 20px;background:var(--bg);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'Inter',sans-serif;font-size:14px;margin-bottom:12px;text-align:center;outline:none;transition:border .3s}
+#analyzerInput:focus{border-color:var(--pink)}
+.analyzer-btn{background:var(--gradient);color:#fff;border:none;padding:12px 28px;font-family:'Inter',sans-serif;font-size:13px;font-weight:600;cursor:pointer;border-radius:10px;transition:all .3s}
+.analyzer-btn:hover{transform:scale(1.03);box-shadow:0 6px 20px rgba(255,45,120,.3)}
+.analyzer-result{margin-top:18px;font-size:13px;color:var(--text2);opacity:0;transition:opacity .5s;line-height:1.7}
+.analyzer-result.show{opacity:1}
+.analyzer-score{display:inline-block;margin-top:10px;font-family:'Space Mono',monospace;font-size:11px;padding:6px 14px;border-radius:20px;letter-spacing:1px}
+
+/* ROI CALCULATOR */
+.roi{background:var(--surface);border:1px solid var(--border);border-radius:20px;padding:40px;margin:40px 0}
+.roi h3{font-size:22px;font-weight:700;margin-bottom:6px;text-align:center}
+.roi>p{font-size:13px;color:var(--text3);margin-bottom:30px;text-align:center}
+.roi-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.roi-box{background:var(--bg);border:1px solid var(--border);border-radius:12px;padding:24px;text-align:center}
+.roi-box.bad{border-color:rgba(239,68,68,.3)}
+.roi-box.good{border-color:rgba(16,185,129,.3)}
+.roi-box h4{font-size:12px;font-family:'Space Mono',monospace;letter-spacing:2px;text-transform:uppercase;margin-bottom:16px}
+.roi-box.bad h4{color:var(--red)}
+.roi-box.good h4{color:var(--green)}
+.roi-line{display:flex;justify-content:space-between;padding:6px 0;font-size:12px;color:var(--text2);border-bottom:1px solid rgba(34,34,51,.3)}
+.roi-line:last-child{border-bottom:none;font-weight:700;color:var(--text);padding-top:12px;margin-top:6px;border-top:1px solid var(--border)}
+.roi-line .val{font-family:'Space Mono',monospace;font-size:11px}
+.roi-line .val.neg{color:var(--red)}
+.roi-line .val.pos{color:var(--green)}
+
+/* PAUL REVEAL */
+.intel{background:linear-gradient(135deg,rgba(139,92,246,.08),rgba(59,130,246,.08));border:1px solid var(--purple);border-radius:20px;padding:45px;margin:40px 0;text-align:center;position:relative;overflow:hidden}
+.intel::before{content:'';position:absolute;inset:0;background:radial-gradient(circle at 30% 50%,rgba(139,92,246,.1),transparent 60%)}
+.intel-eyebrow{font-family:'Space Mono',monospace;font-size:10px;letter-spacing:3px;color:var(--purple);text-transform:uppercase;margin-bottom:20px;position:relative}
+.intel h3{font-family:'DM Serif Display',serif;font-size:28px;margin-bottom:12px;position:relative}
+.intel>p{font-size:14px;color:var(--text2);line-height:1.8;max-width:550px;margin:0 auto 15px;position:relative}
+.intel .name-reveal{font-family:'DM Serif Display',serif;font-size:clamp(32px,7vw,60px);background:linear-gradient(135deg,var(--cyan),var(--purple),var(--pink));-webkit-background-clip:text;-webkit-text-fill-color:transparent;margin:25px 0;letter-spacing:1px;position:relative}
+
+/* CTA SECTION */
+.cta-section{text-align:center;padding:120px 40px;position:relative}
+.cta-section::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at center bottom,rgba(255,45,120,.06),transparent 60%)}
+.cta-section h2{font-family:'DM Serif Display',serif;font-size:clamp(30px,5vw,56px);margin-bottom:16px;letter-spacing:-0.5px;position:relative}
+.cta-section p{font-size:15px;color:var(--text2);max-width:500px;margin:0 auto 35px;line-height:1.7;position:relative}
+.confirm-btn{padding:18px 50px;border-radius:12px;font-size:16px;font-weight:700;cursor:pointer;transition:all .3s;border:none;background:var(--gradient);color:#fff;font-family:'Inter',sans-serif;position:relative}
+.confirm-btn:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(255,45,120,.3)}
+.cta-note{margin-top:15px;font-size:11px;color:var(--text3);font-family:'Space Mono',monospace;letter-spacing:1px;position:relative}
+
+/* FOOTER */
+footer{border-top:1px solid var(--border);padding:40px;text-align:center}
+footer p{font-size:11px;color:var(--text3);font-family:'Space Mono',monospace;letter-spacing:1px;line-height:1.8}
+
+/* IMAGE */
+.section-img{width:100%;border-radius:16px;margin:30px 0;border:1px solid var(--border)}
+.img-caption{text-align:center;font-size:10px;color:var(--text3);font-family:'Space Mono',monospace;letter-spacing:1px;margin-top:-20px;margin-bottom:30px}
+
+/* REVEAL */
+.reveal{opacity:0;transform:translateY(25px);transition:all .6s ease-out}
+.reveal.visible{opacity:1;transform:translateY(0)}
+
+/* POPUP */
+.popup-overlay{position:fixed;inset:0;background:rgba(10,10,15,.95);backdrop-filter:blur(20px);z-index:10000;display:none;align-items:center;justify-content:center;flex-direction:column;text-align:center;padding:40px}
+.popup-overlay.active{display:flex}
+.popup-overlay h2{font-family:'DM Serif Display',serif;font-size:36px;margin-bottom:15px}
+.popup-overlay p{color:var(--text2);font-size:14px;max-width:450px;line-height:1.7;margin-bottom:5px}
+.popup-close{margin-top:25px;color:var(--text3);font-size:11px;cursor:pointer;font-family:'Space Mono',monospace;letter-spacing:2px;transition:color .3s}
+.popup-close:hover{color:var(--pink)}
+
+@media(max-width:768px){
+nav{padding:0 20px}
+.section{padding:60px 20px}
+.hero{padding:100px 20px 60px}
+.brief-header{padding:20px}
+.brief-body{padding:20px}
+.brief-row{flex-direction:column;gap:4px}
+.brief-label{min-width:0}
+.roi-grid{grid-template-columns:1fr}
+.metrics-grid{grid-template-columns:1fr 1fr}
+.creator-grid{grid-template-columns:1fr}
+}
+@media(max-width:480px){
+.metrics-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+<div class="nav-logo"><span>#paid</span></div>
+<div class="nav-tag">Campaign Brief #AR-032926</div>
+<div class="nav-badge">Campaign at Risk</div>
+</nav>
+
+<!-- HERO -->
+<div class="hero">
+<div class="hero-content">
+<div class="hero-eyebrow"><div class="dot"></div> Live Campaign &mdash; Saturday March 29, 2026</div>
+<h1>Campaign Brief:<br><span class="gradient">Get Adam to Coda</span></h1>
+<p>A multi-touchpoint persuasion campaign targeting one (1) co-founder who orchestrated an identical campaign against Dan Kligman approximately 90 minutes ago and is now attempting to bail on the very same night.</p>
+<div class="hero-cta">
+<a href="#brief" class="btn btn-primary">View Campaign Brief</a>
+<a href="#metrics" class="btn btn-secondary">See the Data</a>
+</div>
+</div>
+</div>
+
+<!-- KPI DASHBOARD -->
+<div class="section" id="metrics">
+<div class="reveal">
+<div class="section-eyebrow">Real-Time Dashboard</div>
+<div class="section-title">Campaign Performance Metrics</div>
+<div class="section-desc">Live data from tonight's operation. All metrics update in real time as Adam continues to be ridiculous.</div>
+
+<div class="metrics-grid">
+<div class="metric-card">
+<div class="metric-label">Websites Built Tonight</div>
+<div class="metric-value" style="color:var(--pink)">2</div>
+<div class="metric-change metric-up">+100% vs. plan</div>
+<div class="metric-sub">Original campaign scope: 1 website (Dan's). Adam's hypocrisy forced a second deployment.</div>
+</div>
+<div class="metric-card">
+<div class="metric-label">Hypocrisy Index</div>
+<div class="metric-value" style="color:var(--red)" id="hypocrisyNum">0</div>
+<div class="metric-change metric-down">Exceeds all benchmarks</div>
+<div class="metric-sub">Measured in standard deviations above the mean for "people who create guilt campaigns then bail."</div>
+</div>
+<div class="metric-card">
+<div class="metric-label">Friends Confirmed</div>
+<div class="metric-value" style="color:var(--green)">4/5</div>
+<div class="metric-change metric-down">1 conversion pending</div>
+<div class="metric-sub">Dan Kligman, Libby, Paul Vomberg, Aaron: confirmed. Adam Rivietz: "tired."</div>
+</div>
+<div class="metric-card">
+<div class="metric-label">Time to Coda</div>
+<div class="metric-value" style="color:var(--cyan)" id="uberTime">8</div>
+<div class="metric-change">minutes by Uber</div>
+<div class="metric-sub">The distance between Adam's couch and redemption is a single car ride.</div>
+</div>
+<div class="metric-card">
+<div class="metric-label">Valid Excuses Found</div>
+<div class="metric-value" style="color:var(--text3)">0</div>
+<div class="metric-change">Across all inputs</div>
+<div class="metric-sub">The Excuse Sentiment Analyzer has processed every known excuse and rejected all of them.</div>
+</div>
+<div class="metric-card">
+<div class="metric-label">Countdown to Last Call</div>
+<div class="metric-value" style="color:var(--orange)"><span id="cdH2">--</span>:<span id="cdM2">--</span></div>
+<div class="metric-change">4:00 AM ET</div>
+<div class="metric-sub">Coda has 4AM last call all weekend. The window is open but closing.</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- CAMPAIGN BRIEF -->
+<div class="section section-sm" id="brief">
+<div class="reveal">
+<div class="section-eyebrow">Campaign Overview</div>
+<div class="section-title">Official Campaign Brief</div>
+
+<div class="brief">
+<div class="brief-header">
+<h3>Project: Operation Get Adam Off The Couch</h3>
+<div class="brief-status status-critical">STATUS: CRITICAL</div>
+</div>
+<div class="brief-body">
+<div class="brief-row">
+<div class="brief-label">Client</div>
+<div class="brief-value"><strong>The Saturday Night Coalition</strong> (Aaron L., Dan Kligman, Libby, Paul Vomberg)</div>
+</div>
+<div class="brief-row">
+<div class="brief-label">Target Audience</div>
+<div class="brief-value"><strong>Adam Rivietz</strong>, Co-Founder &amp; CSO of #paid. Male, Toronto. Interests: making plans, not keeping them, influencer marketing, irony.</div>
+</div>
+<div class="brief-row">
+<div class="brief-label">Objective</div>
+<div class="brief-value">Achieve <strong>1 conversion</strong>: Adam Rivietz physically present at Coda (794 Bathurst St, Toronto) before 4:00 AM ET on March 30, 2026.</div>
+</div>
+<div class="brief-row">
+<div class="brief-label">Key Challenge</div>
+<div class="brief-value">The target built <a href="https://sage-assistant.github.io/dan-kligman-coda/" target="_blank" style="color:var(--pink)">an entire website</a> guilting Dan Kligman into attending this exact event, then announced he himself was "tired" approximately 90 minutes later. <strong>The hypocrisy is the primary creative obstacle.</strong></div>
+</div>
+<div class="brief-row">
+<div class="brief-label">Strategy</div>
+<div class="brief-value">Deploy the target's own professional format (#paid campaign case study) to deliver the guilt payload. If Adam can recognize a well-structured campaign brief, he can recognize that bailing is indefensible.</div>
+</div>
+<div class="brief-row">
+<div class="brief-label">Budget</div>
+<div class="brief-value"><strong>$0.00.</strong> This campaign was produced by an AI in under 10 minutes. Adam's company raised $9 million. The contrast is the message.</div>
+</div>
+<div class="brief-row">
+<div class="brief-label">KPI</div>
+<div class="brief-value">Adam clicks "I'll Be There" at the bottom of this page. Secondary KPI: Adam feels enough shame to put on real pants.</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- AUDIENCE PROFILE -->
+<div class="section">
+<div class="reveal">
+<div class="section-eyebrow">Audience Intelligence</div>
+<div class="section-title">Target Profile: Adam Rivietz</div>
+<div class="section-desc">Comprehensive behavioral analysis of the campaign's sole target audience.</div>
+
+<div class="brief">
+<div class="brief-header">
+<h3>Psychographic Profile</h3>
+<div class="brief-status status-pending">HIGH-VALUE TARGET</div>
+</div>
+<div class="brief-body">
+<div class="brief-row">
+<div class="brief-label">Occupation</div>
+<div class="brief-value"><strong>Co-Founder &amp; CSO, #paid</strong> (Hashtag Paid Inc.). Built an influencer marketing platform connecting 15,000+ creators with Fortune 500 brands. Offices in Toronto and New York. $9M Series A (2018).</div>
+</div>
+<div class="brief-row">
+<div class="brief-label">Education</div>
+<div class="brief-value"><strong>Bitmaker Labs</strong>. Learned to code. Used that knowledge to build a company. Tonight, a separate codebase was deployed because he can't keep Saturday plans.</div>
+</div>
+<div class="brief-row">
+<div class="brief-label">Co-Founder</div>
+<div class="brief-value"><strong>Bryan Gold.</strong> Would Bryan bail? No. Bryan would already be at Coda. Bryan would be three drinks deep telling everyone how good the sound system is. Be like Bryan.</div>
+</div>
+<div class="brief-row">
+<div class="brief-label">Public Profile</div>
+<div class="brief-value"><strong>Toronto Tech Week speaker.</strong> Stood on a stage. Told people to show up. To be present. To take risks. Currently horizontal on a couch.</div>
+</div>
+<div class="brief-row">
+<div class="brief-label">Behavioral Pattern</div>
+<div class="brief-value"><strong>High enthusiasm at plan inception, rapid decline as event approaches.</strong> Classic "Couch Gravity Syndrome." Makes elaborate plans, gets everyone excited, then sends a "might bail" text at the worst possible moment.</div>
+</div>
+<div class="brief-row">
+<div class="brief-label">Vulnerability</div>
+<div class="brief-value"><strong>Guilt.</strong> Specifically: well-structured, data-driven guilt presented in a format he professionally respects. Hence this campaign brief.</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- CREATOR LINEUP -->
+<div class="section">
+<div class="reveal">
+<div class="section-eyebrow">Creator Lineup</div>
+<div class="section-title">Tonight's Confirmed Roster</div>
+<div class="section-desc">Every creator in this campaign has confirmed attendance. Except one.</div>
+
+<div class="creator-grid">
+<div class="creator-card">
+<div class="creator-avatar" style="background:rgba(16,185,129,.15)">&#x1F3B6;</div>
+<div class="creator-name">Aaron L.</div>
+<div class="creator-role">Campaign Manager</div>
+<div class="creator-stat">Status: <span>CONFIRMED</span></div>
+<div class="creator-stat">Role: Orchestrating Adam's downfall</div>
+</div>
+<div class="creator-card">
+<div class="creator-avatar" style="background:rgba(59,130,246,.15)">&#x1F3E0;</div>
+<div class="creator-name">Dan Kligman</div>
+<div class="creator-role">Reformed Couch Sitter</div>
+<div class="creator-stat">Status: <span>CONFIRMED</span></div>
+<div class="creator-stat">Note: Guilt-tripped by Adam's own website. Now attending.</div>
+</div>
+<div class="creator-card">
+<div class="creator-avatar" style="background:rgba(139,92,246,.15)">&#x1F37E;</div>
+<div class="creator-name">Libby</div>
+<div class="creator-role">Operations Lead</div>
+<div class="creator-stat">Status: <span>CONFIRMED</span></div>
+<div class="creator-stat">Note: Has been ready since 9 PM</div>
+</div>
+<div class="creator-card">
+<div class="creator-avatar" style="background:rgba(6,182,212,.15)">&#x1F31F;</div>
+<div class="creator-name">Paul Vomberg</div>
+<div class="creator-role">The Reveal</div>
+<div class="creator-stat">Status: <span>CONFIRMED</span></div>
+<div class="creator-stat">Note: See Intelligence Briefing below</div>
+</div>
+<div class="creator-card target">
+<div class="creator-avatar" style="background:rgba(255,45,120,.15)">&#x1F6CB;&#xFE0F;</div>
+<div class="creator-name">Adam Rivietz</div>
+<div class="creator-role">Co-Founder, #paid / Tonight's Problem</div>
+<div class="creator-stat danger">Status: <span id="adamStatus">AT RISK</span></div>
+<div class="creator-stat danger">Excuse submitted: <span>"I'm tired"</span></div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- INTEL: PAUL VOMBERG -->
+<div class="section section-sm">
+<div class="reveal">
+<div class="intel">
+<div class="intel-eyebrow">Intelligence Briefing &mdash; Classified</div>
+<h3>You Need to Know Who's Coming Tonight</h3>
+<p>Throughout this campaign, the group has referred to "Libby's buddy." An anonymous plus-one. A wild card. Just some guy.</p>
+<p>He's not just some guy.</p>
+<div class="name-reveal">Paul Vomberg</div>
+<p>Paul Vomberg is coming tonight. And here's the thing, Adam: <strong>Dan Kligman already knows Paul. They met before. They had a great time.</strong></p>
+<p>This was supposed to be the reunion. Dan, who you guilted into coming with a whole website, is showing up specifically excited to see Paul again. The chemistry was already established. The sequel was already greenlit.</p>
+<p style="color:var(--pink);font-weight:600;margin-top:20px">And you, the person who set all of this in motion, want to miss it.</p>
+<p style="color:var(--text3);font-size:12px;font-family:'Space Mono',monospace;margin-top:15px">Dan and Paul's reunion happening without the guy who organized the whole night is a plot hole that even Netflix wouldn't greenlight.</p>
+</div>
+</div>
+</div>
+
+<!-- CAMPAIGN TIMELINE -->
+<div class="section section-sm">
+<div class="reveal">
+<div class="section-eyebrow">Campaign Timeline</div>
+<div class="section-title">How We Got Here</div>
+<div class="section-desc">A minute-by-minute account of tonight's escalation from "fun Saturday" to "second website."</div>
+
+<div class="timeline">
+<div class="timeline-item">
+<div class="timeline-dot" style="background:var(--green)"></div>
+<div class="timeline-content">
+<div class="timeline-time">9:15 PM ET</div>
+<div class="timeline-text"><strong>Adam Rivietz initiates Operation Dan.</strong> Texts Aaron demanding a guilt campaign website to get Dan Kligman off his couch. Energy level: maximum. Commitment level: seemingly unshakeable.</div>
+</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-dot" style="background:var(--green)"></div>
+<div class="timeline-content">
+<div class="timeline-time">9:19 PM ET</div>
+<div class="timeline-text"><strong>Website #1 deployed.</strong> sage-assistant.github.io/dan-kligman-coda goes live. Contains: fake wellness check, couch obituary, 7-level escalation protocol, intercepted texts, FOMO threat analysis. Adam reviews it. Adam loves it. Adam demands it be sent immediately.</div>
+</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-dot" style="background:var(--green)"></div>
+<div class="timeline-content">
+<div class="timeline-time">9:45 PM ET</div>
+<div class="timeline-text"><strong>Dan Kligman caves.</strong> The website worked. Dan is coming to Coda. <span class="good">Mission accomplished.</span> The campaign was a success by every metric.</div>
+</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-dot" style="background:var(--orange)"></div>
+<div class="timeline-content">
+<div class="timeline-time">10:48 PM ET</div>
+<div class="timeline-text"><strong class="alert">Adam Rivietz sends "the text."</strong> "Actually bro I'm kinda tired. Might not come out tonight." Sent approximately 90 minutes after demanding a website that calls Dan a coward for thinking the same thing. <span class="alert">The irony breaks the scale.</span></div>
+</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-dot" style="background:var(--red)"></div>
+<div class="timeline-content">
+<div class="timeline-time">10:52 PM ET</div>
+<div class="timeline-text"><strong>Aaron authorizes Website #2.</strong> This one. The one you're reading. Built to the exact same spec as Adam's company would produce a campaign brief. Because if guilt won't work, maybe professional embarrassment will.</div>
+</div>
+</div>
+<div class="timeline-item">
+<div class="timeline-dot" style="background:var(--pink)"></div>
+<div class="timeline-content">
+<div class="timeline-time">Now</div>
+<div class="timeline-text"><strong>Adam is reading this.</strong> On his couch. In his sweatpants. Knowing that Dan Kligman, the guy he just shamed, is getting ready right now. Knowing Paul Vomberg is coming. Knowing everyone will be at Coda except him. <span class="alert">The window is closing.</span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ROI CALCULATOR -->
+<div class="section section-sm">
+<div class="reveal">
+<div class="section-eyebrow">Financial Analysis</div>
+<div class="section-title">ROI Comparison</div>
+
+<div class="roi">
+<h3>Cost-Benefit Analysis: Tonight's Decision</h3>
+<p>A data-driven comparison of Adam's two options, presented in a format his investors would appreciate.</p>
+<div class="roi-grid">
+<div class="roi-box bad">
+<h4>Scenario A: Adam Bails</h4>
+<div class="roi-line"><span>Social capital spent on Dan's website</span><span class="val neg">-100%</span></div>
+<div class="roi-line"><span>Credibility as plan-maker</span><span class="val neg">-100%</span></div>
+<div class="roi-line"><span>Sunday morning FOMO</span><span class="val neg">Devastating</span></div>
+<div class="roi-line"><span>Group chat standing</span><span class="val neg">Bottom tier</span></div>
+<div class="roi-line"><span>Paul Vomberg reunion missed</span><span class="val neg">Permanent</span></div>
+<div class="roi-line"><span>Websites mocking you online</span><span class="val neg">2 (forever)</span></div>
+<div class="roi-line"><span>Net ROI</span><span class="val neg">Catastrophic</span></div>
+</div>
+<div class="roi-box good">
+<h4>Scenario B: Adam Shows Up</h4>
+<div class="roi-line"><span>Uber cost</span><span class="val">~$15</span></div>
+<div class="roi-line"><span>Drinks</span><span class="val">~$60</span></div>
+<div class="roi-line"><span>Legendary night with the squad</span><span class="val pos">Priceless</span></div>
+<div class="roi-line"><span>Dan &amp; Paul reunion (that you caused)</span><span class="val pos">+500%</span></div>
+<div class="roi-line"><span>Social capital recovered</span><span class="val pos">+100%</span></div>
+<div class="roi-line"><span>Story rights ("I almost bailed")</span><span class="val pos">Infinite</span></div>
+<div class="roi-line"><span>Net ROI</span><span class="val pos">Exceptional</span></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- EXCUSE ANALYZER -->
+<div class="section section-sm">
+<div class="reveal">
+<div class="analyzer">
+<h3>Excuse Sentiment Analyzer</h3>
+<p>Powered by the same NLP technology Adam's company uses to evaluate creator content. Repurposed for justice.</p>
+<div class="analyzer-display" id="analyzerDisplay">Awaiting input...</div>
+<input type="text" id="analyzerInput" placeholder='Try: "I have an early morning"' />
+<br>
+<button class="analyzer-btn" onclick="analyzeExcuse()">Run Analysis</button>
+<div class="analyzer-result" id="analyzerResult"></div>
+</div>
+</div>
+</div>
+
+<!-- COUNTDOWN -->
+<div class="section" style="text-align:center">
+<div class="reveal">
+<div class="section-eyebrow">Campaign Deadline</div>
+<div class="section-title">Time Remaining in Campaign Window</div>
+<div style="display:flex;justify-content:center;gap:16px;flex-wrap:wrap;margin:30px 0">
+<div style="background:var(--surface);border:1px solid var(--border);padding:20px 28px;border-radius:14px;min-width:100px;text-align:center">
+<div style="font-family:'Space Mono',monospace;font-size:40px;font-weight:700;color:var(--cyan)" id="cdH">--</div>
+<div style="font-size:10px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-top:4px">Hours</div>
+</div>
+<div style="background:var(--surface);border:1px solid var(--border);padding:20px 28px;border-radius:14px;min-width:100px;text-align:center">
+<div style="font-family:'Space Mono',monospace;font-size:40px;font-weight:700;color:var(--cyan)" id="cdM">--</div>
+<div style="font-size:10px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-top:4px">Minutes</div>
+</div>
+<div style="background:var(--surface);border:1px solid var(--border);padding:20px 28px;border-radius:14px;min-width:100px;text-align:center">
+<div style="font-family:'Space Mono',monospace;font-size:40px;font-weight:700;color:var(--cyan)" id="cdS">--</div>
+<div style="font-size:10px;color:var(--text3);letter-spacing:2px;text-transform:uppercase;margin-top:4px">Seconds</div>
+</div>
+</div>
+<p style="font-size:13px;color:var(--text3);max-width:500px;margin:0 auto">Every tick of this clock is another moment where Adam Rivietz, Co-Founder of a company literally called #paid, is failing to pay his social dues.</p>
+</div>
+</div>
+
+<!-- CTA -->
+<div class="cta-section">
+<div class="reveal">
+<div class="section-eyebrow">Campaign Conversion Point</div>
+<h2>This Is Your CTA, Adam.</h2>
+<p>You know what a CTA is. You built a company around them. You've A/B tested thousands. You know that the best-performing ones are clear, urgent, and impossible to ignore. So here it is.</p>
+<img src="campaign-moodboard.jpg" class="section-img" style="max-width:550px;margin:0 auto 30px;display:block">
+<button class="confirm-btn" onclick="convert()">I'll Be There</button>
+<div class="cta-note">Conversion rate on this button for Dan Kligman: 100%</div>
+<div class="cta-note" style="margin-top:8px;color:var(--pink)">Two websites, Adam. Don't make us build a third.</div>
+</div>
+</div>
+
+</main>
+
+<footer>
+<p>#paid Campaign Brief #AR-032926 &mdash; Prepared by the Bureau of Going Out, Creative Division</p>
+<p style="margin-top:8px">This is the second website deployed tonight because one co-founder couldn't keep his own plans.</p>
+<p style="margin-top:8px">Campaign budget: $0.00. Guilt budget: unlimited.</p>
+</footer>
+
+<!-- POPUP -->
+<div class="popup-overlay" id="convertPopup">
+<h2 style="background:var(--gradient);-webkit-background-clip:text;-webkit-text-fill-color:transparent">Campaign Objective: Achieved</h2>
+<p>Adam Rivietz has confirmed attendance at Coda.</p>
+<p>Hypocrisy charges: <strong style="color:var(--green)">Suspended.</strong></p>
+<p>Social standing: <strong style="color:var(--green)">Restored.</strong></p>
+<p>Plan-making privileges: <strong style="color:var(--orange)">Under review.</strong></p>
+<p style="font-family:'Space Mono',monospace;font-size:12px;color:var(--pink);margin-top:20px">Paul Vomberg is waiting. Dan is waiting. The bass is waiting. Get in the Uber.</p>
+<div class="popup-close" onclick="document.getElementById('convertPopup').classList.remove('active')">[ CLOSE BRIEF ]</div>
+</div>
+
+<script>
+// COUNTDOWN
+function startCountdown(){
+function update(){
+const now=new Date();
+const target=new Date('2026-03-30T09:00:00Z');
+const diff=target-now;
+if(diff<=0)return;
+const h=Math.floor(diff/3600000),m=Math.floor((diff%3600000)/60000),s=Math.floor((diff%60000)/1000);
+document.getElementById('cdH').textContent=String(h).padStart(2,'0');
+document.getElementById('cdM').textContent=String(m).padStart(2,'0');
+document.getElementById('cdS').textContent=String(s).padStart(2,'0');
+document.getElementById('cdH2').textContent=String(h).padStart(2,'0');
+document.getElementById('cdM2').textContent=String(m).padStart(2,'0');
+}
+update();setInterval(update,1000);
+}
+startCountdown();
+
+// HYPOCRISY COUNTER
+let hypNum=0;
+const hypTarget=9847;
+function countUp(){
+if(hypNum<hypTarget){
+hypNum+=Math.ceil((hypTarget-hypNum)*0.03);
+if(hypNum>hypTarget)hypNum=hypTarget;
+document.getElementById('hypocrisyNum').textContent=hypNum.toLocaleString();
+requestAnimationFrame(countUp);
+}
+}
+setTimeout(countUp,1500);
+
+// EXCUSE ANALYZER
+let excuseCount=0;
+const responses=[
+{score:"0.00",label:"REJECTED",color:"var(--red)",text:"Sentiment: Cowardice. The NLP model detected zero valid reasoning. Recommendation: Get in the Uber. Your own platform would flag this content as low-quality."},
+{score:"0.02",label:"REJECTED",color:"var(--red)",text:"Pattern match: identical to Dan Kligman's excuses from 90 minutes ago. Adam explicitly condemned these excuses. Cross-referencing Dan's website... hypocrisy confirmed."},
+{score:"0.00",label:"INVALID",color:"var(--red)",text:"Excuse failed brand safety check. A CSO making $0 excuses while his company processes millions in creator payments is flagged as incongruent. Paul Vomberg deserves better."},
+{score:"0.01",label:"REJECTED",color:"var(--red)",text:"The model compared this excuse against 15,000+ creator briefs on the #paid platform. Even the worst-performing creator has a better attendance rate than Adam tonight."},
+{score:"0.00",label:"DESTROYED",color:"var(--pink)",text:"This excuse was tested against the Excuse Destroyer 3000 that Adam commissioned for Dan's website. It was rejected there too. Adam's own weapon turned against him. Poetic."},
+{score:"0.03",label:"REJECTED",color:"var(--red)",text:"Bryan Gold would never submit this excuse. Toronto Tech Week would revoke your speaker badge. Bitmaker Labs would refund your tuition. The data is clear: go to Coda."},
+];
+function analyzeExcuse(){
+const input=document.getElementById('analyzerInput');
+const display=document.getElementById('analyzerDisplay');
+const result=document.getElementById('analyzerResult');
+const excuse=input.value.trim()||"I'm tired";
+display.textContent='Analyzing: "'+excuse+'"';
+display.style.color='var(--orange)';
+setTimeout(()=>{
+display.textContent='Processing through #paid NLP pipeline...';
+},800);
+setTimeout(()=>{
+const r=responses[excuseCount%responses.length];
+display.style.color='var(--red)';
+display.textContent='VALIDITY SCORE: '+r.score+' / 1.00 — '+r.label;
+result.innerHTML=r.text+'<br><span class="analyzer-score" style="background:rgba(239,68,68,.15);color:var(--red);border:1px solid rgba(239,68,68,.2)">EXCUSE '+r.label+' — CAMPAIGN CONTINUES</span>';
+result.classList.add('show');
+excuseCount++;
+input.value='';
+},2200);
+}
+
+// CONVERT
+function convert(){
+document.getElementById('convertPopup').classList.add('active');
+document.getElementById('adamStatus').textContent='CONFIRMED';
+document.getElementById('adamStatus').style.color='var(--green)';
+document.querySelector('.nav-badge').textContent='Objective Achieved';
+document.querySelector('.nav-badge').style.background='var(--green)';
+document.title='#paid | Campaign Successful';
+}
+
+// SCROLL REVEAL
+const observer=new IntersectionObserver((entries)=>{
+entries.forEach(e=>{if(e.isIntersecting){e.target.classList.add('visible');observer.unobserve(e.target)}});
+},{threshold:0.1});
+document.querySelectorAll('.reveal').forEach(el=>observer.observe(el));
+
+// CONSOLE
+console.log('%c#paid Campaign Brief #AR-032926','font-size:16px;color:#ff2d78;font-weight:bold');
+console.log('%cTarget: Adam Rivietz | Objective: Get him to Coda | Status: In Progress','font-size:12px;color:#8888aa');
+console.log('%cThis campaign was produced in the same format Adam\'s company uses professionally.','font-size:11px;color:#555566');
+console.log('%cThe irony is intentional. The guilt is genuine.','font-size:11px;color:#f59e0b');
+console.log('%cWebsites built tonight because of Adam: 2','font-size:13px;color:#ff2d78;font-weight:bold');
+</script>
+</body>
+</html>
