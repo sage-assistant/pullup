@@ -107,11 +107,11 @@ export async function POST(request: Request) {
     }
 
     const slug = buildSiteSlug(plan.target.name, plan.venueName);
-    await writeGeneratedSite(slug, html);
+    const blobUrl = await writeGeneratedSite(slug, html);
 
     return Response.json({
       slug,
-      url: `/sites/${slug}`,
+      url: blobUrl,
     });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown generation error';

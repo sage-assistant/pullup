@@ -1,7 +1,4 @@
-import { mkdir, readFile, writeFile } from 'node:fs/promises';
-import path from 'node:path';
-
-const GENERATED_DIR = process.env.VERCEL ? '/tmp/generated-sites' : path.join(process.cwd(), 'generated-sites');
+import { put } from '@vercel/blob';
 
 export function slugify(value: string) {
   return value
@@ -16,15 +13,11 @@ export function buildSiteSlug(targetName: string, venueName: string) {
   return seed.slice(0, 72);
 }
 
-export async function ensureGeneratedDir() {
-  await mkdir(GENERATED_DIR, { recursive: true });
-}
-
-export async function writeGeneratedSite(slug: string, html: string) {
-  await ensureGeneratedDir();
-  await writeFile(path.join(GENERATED_DIR, `${slug}.html`), html, 'utf8');
-}
-
-export async function readGeneratedSite(slug: string) {
-  return readFile(path.join(GENERATED_DIR, `${slug}.html`), 'utf8');
+export async function writeGeneratedSite(slug: string, html: string): Promise<string> {
+  const blob = await put(`sites/${slug}.html`, html, {
+    access: 'public',
+    contentType: 'text/html; charset=utf-8',
+    addRandomSuffix: false,
+  });
+  return blob.url;
 }
