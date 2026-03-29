@@ -17,87 +17,101 @@ const themes = {
   classified: { bg: '#e8dcc8', accent: '#8b0000', text: '#1a1a1a', muted: '#555555' },
 };
 
+// All sizes use cqi (container query inline) so they scale with phone width
 export function PhoneMockup({ name, headline, venue, time, squad, excuse, theme }: PhoneMockupProps) {
   const t = themes[theme];
+  const badgeColor = theme === 'newspaper' || theme === 'classified' ? '#fff' : t.bg;
 
   return (
-    <div className="relative">
-      {/* Phone frame */}
-      <div className="relative overflow-hidden rounded-[1.8rem] border-[3px] border-black/85 shadow-[0_16px_50px_rgba(0,0,0,0.12)]">
+    <div className="relative" style={{ containerType: 'inline-size' }}>
+      <div className="relative overflow-hidden rounded-[12cqi] border-[2.5cqi] border-black/85 shadow-[0_16px_50px_rgba(0,0,0,0.12)]">
         {/* Notch */}
-        <div className="absolute left-1/2 top-0 z-10 h-5 w-16 -translate-x-1/2 rounded-b-xl" style={{ background: 'black' }} />
+        <div className="absolute left-1/2 top-0 z-10 -translate-x-1/2 rounded-b-[4cqi]" style={{ background: 'black', height: '4cqi', width: '28cqi' }} />
 
-        {/* Screen content */}
-        <div className="aspect-[9/16.5] overflow-hidden p-3 pt-7 text-left" style={{ background: t.bg }}>
-          {/* Status badge */}
+        {/* Screen */}
+        <div className="aspect-[9/17] overflow-hidden text-left" style={{ background: t.bg, padding: '6cqi', paddingTop: '10cqi' }}>
+          {/* Badge */}
           <div
-            className="mb-3 inline-block rounded-sm px-2 py-0.5 text-[6px] font-bold uppercase tracking-widest"
-            style={{ background: t.accent, color: theme === 'newspaper' || theme === 'classified' ? '#fff' : t.bg }}
+            style={{
+              background: t.accent,
+              color: badgeColor,
+              fontSize: '3cqi',
+              padding: '1cqi 3cqi',
+              marginBottom: '4cqi',
+              display: 'inline-block',
+              fontWeight: 800,
+              letterSpacing: '0.12em',
+              textTransform: 'uppercase' as const,
+              borderRadius: '1cqi',
+            }}
           >
             FORMAL INTERVENTION
           </div>
 
           {/* Headline */}
-          <h3
-            className="text-[11px] font-black uppercase leading-tight tracking-tight sm:text-[13px]"
-            style={{ color: t.text }}
-          >
+          <div style={{ color: t.text, fontSize: '6.5cqi', fontWeight: 900, lineHeight: 1.1, textTransform: 'uppercase' as const, letterSpacing: '-0.02em' }}>
             {headline}
-          </h3>
+          </div>
 
-          {/* Venue + time */}
-          <p className="mt-1.5 text-[7px] uppercase tracking-wider" style={{ color: t.muted }}>
+          {/* Venue */}
+          <div style={{ color: t.muted, fontSize: '3.2cqi', marginTop: '2.5cqi', textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>
             {venue} / {time}
-          </p>
+          </div>
 
-          {/* Threat bar */}
-          <div className="mt-3">
-            <div className="flex items-center justify-between text-[6px] uppercase tracking-wider" style={{ color: t.muted }}>
-              <span>FOMO LEVEL</span>
-              <span style={{ color: t.accent }}>94%</span>
+          {/* FOMO bar */}
+          <div style={{ marginTop: '4cqi' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '2.8cqi', textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>
+              <span style={{ color: t.muted }}>FOMO LEVEL</span>
+              <span style={{ color: t.accent, fontWeight: 700 }}>94%</span>
             </div>
-            <div className="mt-1 h-1.5 w-full overflow-hidden rounded-full" style={{ background: `${t.muted}33` }}>
-              <div className="h-full rounded-full" style={{ width: '94%', background: t.accent }} />
+            <div style={{ marginTop: '1.5cqi', height: '2cqi', width: '100%', borderRadius: '99px', background: `${t.muted}33` }}>
+              <div style={{ height: '100%', width: '94%', borderRadius: '99px', background: t.accent }} />
             </div>
           </div>
 
           {/* Excuse */}
-          <div className="mt-3 rounded-sm border p-2" style={{ borderColor: `${t.accent}44` }}>
-            <p className="text-[6px] uppercase tracking-wider" style={{ color: t.muted }}>EXCUSE SUBMITTED</p>
-            <p className="mt-1 text-[8px]" style={{ color: t.text }}>&quot;{excuse}&quot;</p>
-            <p className="mt-1 text-[7px] font-bold uppercase" style={{ color: t.accent }}>REJECTED</p>
+          <div style={{ marginTop: '4cqi', border: `1px solid ${t.accent}55`, borderRadius: '1.5cqi', padding: '3cqi' }}>
+            <div style={{ color: t.muted, fontSize: '2.8cqi', textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>EXCUSE SUBMITTED</div>
+            <div style={{ color: t.text, fontSize: '4cqi', marginTop: '1.5cqi' }}>&quot;{excuse}&quot;</div>
+            <div style={{ color: t.accent, fontSize: '3.5cqi', fontWeight: 800, marginTop: '1.5cqi', textTransform: 'uppercase' as const }}>REJECTED</div>
           </div>
 
           {/* Squad */}
-          <div className="mt-3">
-            <p className="text-[6px] uppercase tracking-wider" style={{ color: t.muted }}>SQUAD ROSTER</p>
-            <div className="mt-1.5 space-y-1">
+          <div style={{ marginTop: '4cqi' }}>
+            <div style={{ color: t.muted, fontSize: '2.8cqi', textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>SQUAD ROSTER</div>
+            <div style={{ marginTop: '2cqi' }}>
               {squad.map((s) => (
-                <div key={s} className="flex items-center justify-between text-[7px]">
-                  <span style={{ color: t.text }}>{s.toUpperCase()}</span>
-                  <span style={{ color: t.accent }}>CONFIRMED</span>
+                <div key={s} style={{ display: 'flex', justifyContent: 'space-between', fontSize: '3.2cqi', padding: '1cqi 0' }}>
+                  <span style={{ color: t.text, textTransform: 'uppercase' as const }}>{s}</span>
+                  <span style={{ color: t.accent, fontWeight: 700 }}>CONFIRMED</span>
                 </div>
               ))}
-              <div className="flex items-center justify-between border-t pt-1 text-[7px]" style={{ borderColor: `${t.muted}33` }}>
-                <span style={{ color: t.text }}>{name.toUpperCase()}</span>
-                <span style={{ color: t.accent === '#e63946' ? '#e63946' : '#ef4444' }}>PENDING</span>
+              <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '3.2cqi', padding: '1.5cqi 0 0', borderTop: `1px solid ${t.muted}33` }}>
+                <span style={{ color: t.text, textTransform: 'uppercase' as const }}>{name}</span>
+                <span style={{ color: '#ef4444', fontWeight: 700 }}>PENDING</span>
               </div>
             </div>
           </div>
 
           {/* Countdown */}
-          <div className="mt-3 rounded-sm border p-2 text-center" style={{ borderColor: `${t.accent}66` }}>
-            <p className="text-[6px] uppercase tracking-wider" style={{ color: t.muted }}>TIME REMAINING</p>
-            <p className="mt-1 text-[14px] font-bold tracking-tight" style={{ color: t.text }}>
-              04:22:07
-            </p>
+          <div style={{ marginTop: '4cqi', border: `1px solid ${t.accent}66`, borderRadius: '1.5cqi', padding: '3cqi', textAlign: 'center' as const }}>
+            <div style={{ color: t.muted, fontSize: '2.8cqi', textTransform: 'uppercase' as const, letterSpacing: '0.08em' }}>TIME REMAINING</div>
+            <div style={{ color: t.text, fontSize: '8cqi', fontWeight: 800, marginTop: '1cqi', letterSpacing: '-0.02em' }}>04:22:07</div>
           </div>
 
-          {/* CTA button */}
-          <div
-            className="mt-3 rounded-sm py-2 text-center text-[7px] font-bold uppercase tracking-widest"
-            style={{ background: t.accent, color: theme === 'newspaper' || theme === 'classified' ? '#fff' : t.bg }}
-          >
+          {/* CTA */}
+          <div style={{
+            marginTop: '4cqi',
+            background: t.accent,
+            color: badgeColor,
+            borderRadius: '1.5cqi',
+            padding: '2.5cqi',
+            textAlign: 'center' as const,
+            fontSize: '3.2cqi',
+            fontWeight: 800,
+            textTransform: 'uppercase' as const,
+            letterSpacing: '0.1em',
+          }}>
             I&apos;LL BE THERE
           </div>
         </div>
