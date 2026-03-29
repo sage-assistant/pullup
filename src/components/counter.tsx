@@ -29,7 +29,7 @@ export function Counter({ value, suffix = '', duration = 1800 }: CounterProps) {
   }, [duration, value]);
 
   return (
-    <span>
+    <span className="font-mono text-black">
       {display}
       {suffix}
     </span>

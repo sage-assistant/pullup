@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { useEffect, useRef, useState, useCallback } from 'react';
 
-import type { NightPlan, ResearchTarget } from '@/lib/types';
+import type { ResearchTarget } from '@/lib/types';
 
 type ChatMessage = {
   id: string;
@@ -52,6 +52,18 @@ function toSimpleMessages(messages: ChatMessage[]) {
     .map(({ role, content }) => ({ role, content }));
 }
 
+function makeAsciiBar(activeIndex: number, index: number) {
+  const filled = index <= activeIndex ? 4 : 0;
+  return `[${'='.repeat(filled)}${'-'.repeat(4 - filled)}]`;
+}
+
+function statusLabel(phase: string) {
+  if (phase === 'complete') return 'DEPLOYED';
+  if (phase === 'generating') return 'BUILDING';
+  if (phase === 'ready') return 'READY TO BUILD';
+  return 'GATHERING INTEL';
+}
+
 export function CreateOracle() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
@@ -85,7 +97,6 @@ export function CreateOracle() {
     scrollerRef.current?.scrollTo({ top: scrollerRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages, typing]);
 
-  // Extract structured info from conversation
   const extractInfo = useCallback(async (msgs: ChatMessage[]): Promise<Partial<PlanState>> => {
     try {
       const res = await fetch('/api/extract', {
@@ -100,7 +111,6 @@ export function CreateOracle() {
     }
   }, []);
 
-  // Research the target person
   const runResearch = useCallback(async (name: string, city: string): Promise<ResearchTarget | null> => {
     try {
       const res = await fetch('/api/research', {
@@ -136,7 +146,6 @@ export function CreateOracle() {
     }
   }, []);
 
-  // Stream Oracle response
   const streamOracle = useCallback(async (msgs: ChatMessage[], currentPlan: PlanState): Promise<string> => {
     setTyping(true);
     setIsStreaming(true);
@@ -181,7 +190,6 @@ export function CreateOracle() {
     return aggregate;
   }, []);
 
-  // Generate the final site
   const generateSite = useCallback(async (finalPlan: PlanState) => {
     setIsGenerating(true);
     setMessages((current) => [
@@ -248,16 +256,10 @@ export function CreateOracle() {
     setMessages(nextMessages);
     setInput('');
 
-    // Extract info from conversation in parallel with Oracle response
     const extractPromise = extractInfo(nextMessages);
-
-    // Get current plan for Oracle context
-    let currentPlan = { ...plan };
-
-    // Run Oracle
+    const currentPlan = { ...plan };
     const oracleResponse = await streamOracle(nextMessages, currentPlan);
 
-    // Apply extracted info
     const extracted = await extractPromise;
     const updatedPlan: PlanState = {
       ...currentPlan,
@@ -274,7 +276,6 @@ export function CreateOracle() {
       researchResult: currentPlan.researchResult,
     };
 
-    // If we have a target name and haven't researched yet, do it now
     if (updatedPlan.targetName && !updatedPlan.targetResearched && !didResearchRef.current) {
       didResearchRef.current = true;
       const researchCity = updatedPlan.targetCity || updatedPlan.city;
@@ -289,86 +290,60 @@ export function CreateOracle() {
 
     setPlan(updatedPlan);
 
-    // Check if Oracle signaled BUILD_NOW
     if (oracleResponse.includes('BUILD_NOW')) {
       await generateSite(updatedPlan);
     }
   }
 
   return (
-    <main className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-8 px-4 py-6 sm:px-6 lg:px-8">
-      <div className="glass-surface flex items-center justify-between rounded-[1.75rem] px-5 py-4">
+    <main className="mx-auto flex min-h-screen w-full max-w-7xl flex-col gap-5 bg-white px-4 py-4 text-black sm:px-6 sm:py-6 lg:px-8">
+      <header className="grid gap-4 border border-black p-4 md:grid-cols-[1fr_auto] md:items-end">
         <div>
-          <Link href="/" className="font-mono text-xs uppercase tracking-[0.3em] text-white/55">
+          <Link href="/" className="font-mono text-[11px] uppercase tracking-[0.35em] text-[#666666]">
             PULLUP
           </Link>
-          <h1 className="mt-2 font-serif text-3xl tracking-[-0.04em] text-white sm:text-4xl">Oracle Session</h1>
+          <h1 className="mt-3 font-sans text-4xl font-black uppercase tracking-[-0.06em]">ORACLE SESSION</h1>
         </div>
-        <div className="text-right">
-          <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-white/38">status</p>
-          <p className="mt-2 text-sm text-white/70">
-            {phase === 'complete' ? 'Deployed' : phase === 'generating' ? 'Building...' : phase === 'ready' ? 'Ready to build' : 'Gathering intel'}
-          </p>
-        </div>
-      </div>
-
-      <div className="grid flex-1 gap-6 lg:grid-cols-[0.72fr_1.28fr]">
-        <aside className="glass-panel rounded-[2rem] p-5">
-          <p className="font-mono text-[11px] uppercase tracking-[0.3em] text-[var(--accent-cyan)]">Build State</p>
-          <div className="mt-5 space-y-4 text-sm text-white/65">
-            <div className="rounded-[1.4rem] border border-white/8 bg-white/[0.03] p-4">
-              <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-white/40">Tonight</p>
-              <p className="mt-3 text-white">{plan.venueName || 'Venue pending'}</p>
-              <p className="mt-1 text-white/50">{plan.city || 'City pending'} · {plan.time || 'Time pending'}</p>
-            </div>
-            <div className="rounded-[1.4rem] border border-white/8 bg-white/[0.03] p-4">
-              <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-white/40">Target</p>
-              <p className="mt-3 text-white">{plan.targetName || 'Name pending'}</p>
-              <p className="mt-1 text-white/50">
-                {plan.researchResult
-                  ? [plan.researchResult.title, plan.researchResult.company].filter(Boolean).join(' at ')
-                  : plan.targetCity || 'Research pending'}
-              </p>
-              {plan.researchResult?.school ? <p className="mt-1 text-white/50">{plan.researchResult.school}</p> : null}
-            </div>
-            <div className="rounded-[1.4rem] border border-white/8 bg-white/[0.03] p-4">
-              <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-white/40">Ammo</p>
-              <p className="mt-3 text-white/72">{plan.excuse || 'Excuse pending'}</p>
-              <p className="mt-2 text-white/50">{plan.squad.length ? `${plan.squad.length} squad members locked` : 'Squad roster pending'}</p>
-              <p className="mt-2 text-white/50">Outrage level {plan.outrageLevel}/10</p>
-            </div>
-            {resultUrl ? (
-              <a href={resultUrl} target="_blank" rel="noopener noreferrer" className="block rounded-[1.4rem] border border-[var(--accent-pink)]/25 bg-[var(--accent-pink)]/8 p-4 text-white transition hover:bg-[var(--accent-pink)]/12">
-                <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-[var(--accent-pink)]">Deployed</p>
-                <p className="mt-3 text-sm leading-7">Open the generated site</p>
-              </a>
-            ) : null}
+        <div className="border border-black p-4 text-left md:min-w-64 md:text-right">
+          <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-[#666666]">STATUS</p>
+          <div className="mt-3 flex items-center gap-3 md:justify-end">
+            <span className="h-2 w-2 rounded-full bg-[#39FF14]" />
+            <span className="font-mono text-sm uppercase tracking-[0.22em]">{statusLabel(phase)}</span>
           </div>
-        </aside>
+        </div>
+      </header>
 
-        <section className="glass-panel flex min-h-[70vh] flex-col overflow-hidden rounded-[2rem]">
-          <div ref={scrollerRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-5 sm:px-6">
+      <div className="grid flex-1 gap-5 lg:grid-cols-[minmax(0,1.55fr)_minmax(18rem,0.85fr)]">
+        <section className="order-2 flex min-h-[70vh] flex-col border border-black lg:order-1">
+          <div className="border-b border-black px-4 py-3 font-mono text-[11px] uppercase tracking-[0.34em] text-[#666666] sm:px-5">
+            TERMINAL
+          </div>
+
+          <div ref={scrollerRef} className="flex-1 space-y-4 overflow-y-auto px-4 py-4 font-mono text-sm leading-7 sm:px-5">
             {messages.map((message) => {
               if (message.kind === 'research') {
                 return (
-                  <div key={message.id} className="rounded-[1.5rem] border border-cyan-400/20 bg-cyan-400/8 p-4">
-                    <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-cyan-200">Research Card</p>
-                    <p className="mt-3 text-sm leading-7 text-white/75">{message.content}</p>
+                  <div key={message.id} className="border border-[#39FF14] p-4">
+                    <p className="text-[11px] uppercase tracking-[0.34em] text-[#666666]">RESEARCH CARD</p>
+                    <p className="mt-3 text-black">oracle &gt; {message.content}</p>
                   </div>
                 );
               }
 
               if (message.kind === 'progress') {
                 return (
-                  <div key={message.id} className="rounded-[1.5rem] border border-white/8 bg-white/[0.03] p-4">
-                    <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-white/42">Build Progress</p>
+                  <div key={message.id} className="border border-black bg-[#f8f8f8] p-4">
+                    <p className="text-[11px] uppercase tracking-[0.34em] text-[#666666]">BUILD PROGRESS</p>
                     <div className="mt-4 space-y-3">
-                      {progressLabels.map((label, index) => (
-                        <div key={label} className="flex items-center gap-3 text-sm text-white/70">
-                          <div className={`h-2.5 w-2.5 rounded-full ${isGenerating || index < progressLabels.length - 1 ? 'bg-[var(--accent-pink)] animate-pulse' : 'bg-white/12'}`} />
-                          <span>{label}</span>
-                        </div>
-                      ))}
+                      {progressLabels.map((label, index) => {
+                        const activeIndex = isGenerating ? progressLabels.length - 1 : progressLabels.length - 1;
+                        return (
+                          <div key={label} className="flex flex-wrap items-center gap-3 text-black">
+                            <span className="uppercase tracking-[0.18em] text-[#39FF14]">{makeAsciiBar(activeIndex, index)}</span>
+                            <span>{label.toUpperCase()}</span>
+                          </div>
+                        );
+                      })}
                     </div>
                   </div>
                 );
@@ -377,61 +352,134 @@ export function CreateOracle() {
               if (message.kind === 'result') {
                 const url = message.content.match(/https?:\/\/\S+/)?.[0];
                 return (
-                  <div key={message.id} className="rounded-[1.5rem] border border-[var(--accent-pink)]/30 bg-[var(--accent-pink)]/8 p-5 text-center">
-                    <p className="font-mono text-[11px] uppercase tracking-[0.28em] text-[var(--accent-pink)]">Site Deployed</p>
-                    <p className="mt-3 text-lg font-semibold text-white">Your guilt trip is live.</p>
-                    {url && (
-                      <a href={url} target="_blank" rel="noopener noreferrer" className="mt-4 inline-block rounded-full bg-[linear-gradient(135deg,var(--accent-pink),var(--accent-purple),var(--accent-blue))] px-6 py-3 text-sm font-semibold text-white transition hover:translate-y-[-1px]">
-                        Open the Site
-                      </a>
-                    )}
+                  <div key={message.id} className="border border-black p-4">
+                    <p className="font-mono text-[11px] uppercase tracking-[0.34em] text-[#666666]">RESULT</p>
+                    <p className="mt-3 text-black">oracle &gt; [OK] YOUR GUILT TRIP IS LIVE.</p>
+                    {url ? (
+                      <>
+                        <div className="mt-4 border border-[#39FF14] p-4 text-[#39FF14]">{url}</div>
+                        <a
+                          href={url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-4 inline-flex items-center justify-center border border-black bg-[#39FF14] px-5 py-3 text-[11px] uppercase tracking-[0.32em] text-black transition hover:border-[#39FF14]"
+                        >
+                          SEND TO TARGET
+                        </a>
+                      </>
+                    ) : null}
                   </div>
                 );
               }
 
-              const isAssistant = message.role === 'assistant';
+              const label = message.role === 'assistant' ? 'oracle' : 'you';
+              const borderColor = message.role === 'assistant' ? 'border-black' : 'border-[#39FF14]';
+              const surface = message.role === 'assistant' ? 'bg-white' : 'bg-[#f8f8f8]';
+
               return (
-                <div key={message.id} className={`flex ${isAssistant ? 'justify-start' : 'justify-end'}`}>
-                  <div
-                    className={`max-w-[90%] rounded-[1.6rem] px-4 py-3 text-sm leading-7 sm:max-w-[78%] ${
-                      isAssistant
-                        ? 'border border-white/8 bg-white/[0.045] text-white/80'
-                        : 'bg-[linear-gradient(135deg,var(--accent-pink),var(--accent-purple),var(--accent-blue))] text-white shadow-[0_16px_50px_rgba(255,45,120,0.2)]'
-                    }`}
-                  >
-                    {message.content}
-                  </div>
+                <div key={message.id} className={`border ${borderColor} ${surface} p-4`}>
+                  <p className="text-[11px] uppercase tracking-[0.34em] text-[#666666]">{label} &gt;</p>
+                  <p className="mt-2 whitespace-pre-wrap text-black">{message.content || (typing && label === 'oracle' ? '...' : '')}</p>
                 </div>
               );
             })}
 
             {typing ? (
-              <div className="flex justify-start">
-                <div className="rounded-full border border-white/8 bg-white/[0.04] px-4 py-3 text-sm text-white/55">
-                  Oracle is working...
-                </div>
+              <div className="border border-black bg-[#f8f8f8] p-4">
+                <p className="text-[11px] uppercase tracking-[0.34em] text-[#666666]">ORACLE &gt;</p>
+                <p className="mt-2 text-black">...</p>
               </div>
             ) : null}
           </div>
 
-          <form onSubmit={handleSubmit} className="border-t border-white/8 p-4 sm:p-5">
+          <form onSubmit={handleSubmit} className="border-t border-black p-4 sm:p-5">
             <div className="flex flex-col gap-3 sm:flex-row">
-              <input
-                value={input}
-                onChange={(event) => setInput(event.target.value)}
-                placeholder={hasMinimum ? 'Add more details or say "build it"' : 'Tell the Oracle everything...'}
-                className="min-h-13 flex-1 rounded-full border border-white/10 bg-black/20 px-5 text-sm text-white outline-none transition placeholder:text-white/28 focus:border-white/22"
-              />
+              <label className="flex min-h-13 flex-1 items-center gap-3 border border-black px-4">
+                <span className="font-mono text-[11px] uppercase tracking-[0.34em] text-black">you &gt;</span>
+                <input
+                  value={input}
+                  onChange={(event) => setInput(event.target.value)}
+                  placeholder={hasMinimum ? 'ADD MORE DETAILS OR SAY BUILD IT' : 'TELL THE ORACLE EVERYTHING'}
+                  className="min-w-0 flex-1 bg-transparent font-mono text-sm text-black outline-none placeholder:text-[#666666]"
+                />
+                <span className="font-mono text-[11px] uppercase tracking-[0.34em] text-[#39FF14]">|</span>
+              </label>
               <button
                 type="submit"
                 disabled={isStreaming || isGenerating}
-                className="rounded-full bg-[linear-gradient(135deg,var(--accent-pink),var(--accent-purple),var(--accent-blue))] px-6 py-3 text-sm font-semibold text-white transition disabled:cursor-not-allowed disabled:opacity-50"
+                className="border border-black bg-[#39FF14] px-5 py-3 font-mono text-[11px] uppercase tracking-[0.32em] text-black transition disabled:cursor-not-allowed disabled:border-[#e0e0e0] disabled:bg-white disabled:text-[#666666]"
               >
-                {isGenerating ? 'Generating...' : isStreaming ? 'Oracle speaking...' : 'Send'}
+                {isGenerating ? 'GENERATING' : isStreaming ? 'ORACLE SPEAKING' : 'SEND'}
               </button>
             </div>
           </form>
         </section>
+
+        <aside className="order-1 border border-black bg-[#f8f8f8] p-4 lg:order-2">
+          <p className="font-mono text-[11px] uppercase tracking-[0.35em] text-[#666666]">BUILD STATE</p>
+          <div className="mt-5 space-y-4 font-mono text-sm">
+            <div className="border border-black bg-white p-4">
+              <p className="text-[11px] uppercase tracking-[0.34em] text-[#666666]">TONIGHT</p>
+              <p className="mt-3 uppercase text-black">{plan.venueName || 'VENUE PENDING'}</p>
+              <p className="mt-2 text-[#666666]">{[plan.city || 'CITY PENDING', plan.time || 'TIME PENDING'].join(' / ')}</p>
+            </div>
+
+            <div className="border border-black bg-white p-4">
+              <p className="text-[11px] uppercase tracking-[0.34em] text-[#666666]">TARGET</p>
+              <p className="mt-3 uppercase text-black">{plan.targetName || 'NAME PENDING'}</p>
+              <p className="mt-2 text-[#666666]">
+                {plan.researchResult
+                  ? [plan.researchResult.title, plan.researchResult.company].filter(Boolean).join(' AT ').toUpperCase()
+                  : (plan.targetCity || 'RESEARCH PENDING').toUpperCase()}
+              </p>
+              {plan.researchResult?.school ? <p className="mt-2 text-[#666666]">{plan.researchResult.school.toUpperCase()}</p> : null}
+            </div>
+
+            <div className="border border-black bg-white p-4">
+              <p className="text-[11px] uppercase tracking-[0.34em] text-[#666666]">AMMO</p>
+              <p className="mt-3 text-black">{(plan.excuse || 'EXCUSE PENDING').toUpperCase()}</p>
+              <p className="mt-2 text-[#666666]">
+                {(plan.squad.length ? `${plan.squad.length} SQUAD MEMBERS LOCKED` : 'SQUAD ROSTER PENDING').toUpperCase()}
+              </p>
+              <p className="mt-2 text-[#666666]">{`OUTRAGE LEVEL ${plan.outrageLevel}/10`}</p>
+            </div>
+
+            <div className="border border-black bg-white p-4">
+              <p className="text-[11px] uppercase tracking-[0.34em] text-[#666666]">PIPELINE</p>
+              <div className="mt-4 space-y-3">
+                {progressLabels.map((label, index) => {
+                  const activeIndex =
+                    phase === 'complete' ? 3 : phase === 'generating' ? 2 : plan.targetResearched ? 1 : plan.targetName ? 0 : -1;
+                  return (
+                    <div key={label} className="flex items-center justify-between gap-3">
+                      <span className="text-[11px] uppercase tracking-[0.22em] text-black">{label.toUpperCase()}</span>
+                      <span className={index <= activeIndex ? 'text-[#39FF14]' : 'text-[#666666]'}>{makeAsciiBar(activeIndex, index)}</span>
+                    </div>
+                  );
+                })}
+              </div>
+            </div>
+
+            {plan.researchResult ? (
+              <div className="border border-[#39FF14] bg-white p-4">
+                <p className="text-[11px] uppercase tracking-[0.34em] text-[#666666]">RESEARCH SUMMARY</p>
+                <p className="mt-3 text-black">{plan.researchResult.summary}</p>
+              </div>
+            ) : null}
+
+            {resultUrl ? (
+              <a
+                href={resultUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block border border-[#39FF14] bg-white p-4 transition hover:border-black"
+              >
+                <p className="text-[11px] uppercase tracking-[0.34em] text-[#666666]">DEPLOYED URL</p>
+                <p className="mt-3 break-all text-[#39FF14]">{resultUrl}</p>
+              </a>
+            ) : null}
+          </div>
+        </aside>
       </div>
     </main>
   );

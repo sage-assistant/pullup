@@ -7,13 +7,26 @@ export const runtime = 'nodejs';
 
 function buildPrompt(data: NightPlan) {
   return `
-Generate a complete self-contained HTML document for a premium dark interactive website that guilt-trips ${data.target.name} into going out tonight.
+Generate a complete self-contained HTML document for a Swiss terminal minimal interactive website that guilt-trips ${data.target.name} into going out tonight.
 
 Requirements:
 - Output raw HTML only. No markdown fences. No explanations.
 - Use inline CSS and inline JavaScript only.
-- Design quality should feel like a polished premium product launch and match this vibe: dark background, glass surfaces, dramatic gradients, crisp typography, smooth reveal animations.
-- Fonts must be loaded from Google Fonts: Inter, DM Serif Display, Space Mono.
+- Design system must strictly use:
+  - Background: #FFFFFF
+  - Text: #000000
+  - Accent: #39FF14
+  - Borders: #E0E0E0
+  - Surface: #F8F8F8
+  - Muted text: #666666
+- Fonts must be loaded from Google Fonts: Inter and Space Mono.
+- Headlines use Inter with very heavy weight, uppercase, and tight spacing.
+- Body and UI labels use Space Mono.
+- Labels should be uppercase with wide tracking.
+- Style direction: Swiss poster energy meets hacker terminal.
+- No gradients, no shadows, no glass effects, no decorative illustrations.
+- Use only thin 1px solid borders.
+- White background everywhere. Black text everywhere. Neon lime is the only accent color.
 - Personalize to this target:
   - Name: ${data.target.name}
   - City: ${data.target.city}
@@ -46,6 +59,8 @@ Must include:
 - Mobile responsive layout
 - No emojis
 - Marketing copy must not use em dashes or en dashes
+- Layout should feel grid-based, minimal, and sharply aligned
+- Chat or terminal-like callouts can use prefixes like "oracle >" and "you >"
 
 Make it funny, sharp, and specific. Include meaningful motion and interactive controls.
   `.trim();
