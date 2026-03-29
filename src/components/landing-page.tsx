@@ -83,7 +83,7 @@ export function LandingPage() {
                   marginTop: i % 2 === 0 ? '0px' : '18px',
                 }}
               >
-                <PhoneMockup {...card} />
+                <PhoneMockup {...card} compact />
                 <div className="mt-3 text-center">
                   <p className="text-[13px] font-medium text-black">{card.name}</p>
                   <p className="text-[12px] text-black/40">{card.event}</p>
@@ -99,8 +99,8 @@ export function LandingPage() {
             style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}
           >
             {galleryPhones.map((card) => (
-              <div key={card.name + card.theme} className="w-[160px] flex-shrink-0">
-                <PhoneMockup {...card} />
+              <div key={card.name + card.theme} className="w-[180px] flex-shrink-0">
+                <PhoneMockup {...card} compact />
                 <div className="mt-3">
                   <p className="text-[13px] font-medium text-black">{card.name}</p>
                   <p className="text-[12px] text-black/40">{card.event}</p>
