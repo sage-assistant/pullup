@@ -1,15 +1,26 @@
 'use client';
 
-import Image from 'next/image';
 import Link from 'next/link';
 
-const gallery = [
-  { img: '/mobile-marcus.jpg', name: 'marcus', event: 'rooftop bar, nyc', result: 'showed up at 11:42pm' },
-  { img: '/mobile-sophie.jpg', name: 'sophie', event: 'birthday dinner, la', result: 'confirmed in 8 minutes' },
-  { img: '/mobile-jake.jpg', name: 'jake', event: 'concert, chicago', result: 'caved after section 3' },
-  { img: '/mobile-priya.jpg', name: 'priya', event: 'house party, toronto', result: 'arrived with snacks' },
-  { img: '/mobile-tyler.jpg', name: 'tyler', event: 'game night, austin', result: 'texted "fine" in all caps' },
-  { img: '/mobile-emma.jpg', name: 'emma', event: 'brunch, miami', result: 'ordered uber mid-scroll' },
+import { PhoneMockup } from '@/components/phone-mockup';
+
+const heroPhone = {
+  name: 'jake',
+  headline: 'Jake, the concert is tonight.',
+  venue: 'Metro, Chicago',
+  time: '4AM Last Call',
+  squad: ['Mina K.', 'Jules R.', 'Priya S.'],
+  excuse: "i'm tired",
+  theme: 'green' as const,
+};
+
+const galleryPhones = [
+  { name: 'marcus', headline: 'Marcus, the rooftop is waiting.', venue: 'Skybar, NYC', time: '2AM Close', squad: ['Dan', 'Libby', 'Paul'], excuse: "i have work tomorrow", theme: 'red' as const, event: 'rooftop bar, nyc', result: 'showed up at 11:42pm' },
+  { name: 'sophie', headline: 'Sophie, this is not optional.', venue: 'Nobu, LA', time: '11PM Reservation', squad: ['Rachel', 'Tom', 'Ava'], excuse: "i already ate", theme: 'gold' as const, event: 'birthday dinner, la', result: 'confirmed in 8 minutes' },
+  { name: 'jake', headline: 'Jake, the concert is tonight.', venue: 'Metro, Chicago', time: '4AM Last Call', squad: ['Mina', 'Jules', 'Priya'], excuse: "i'm tired", theme: 'green' as const, event: 'concert, chicago', result: 'caved after section 3' },
+  { name: 'priya', headline: 'Priya, the squad needs you.', venue: 'Coda, Toronto', time: '4AM Last Call', squad: ['Adam', 'Dan', 'Libby'], excuse: "maybe next weekend", theme: 'pink' as const, event: 'house party, toronto', result: 'arrived with snacks' },
+  { name: 'tyler', headline: 'Breaking: Tyler attempts to bail.', venue: 'Ben\'s Place, Austin', time: '10PM Start', squad: ['Chris', 'Sam', 'Nadia'], excuse: "i just got comfortable", theme: 'newspaper' as const, event: 'game night, austin', result: 'texted "fine" in all caps' },
+  { name: 'emma', headline: 'Case #EM: Failure to attend brunch.', venue: 'Mandolin, Miami', time: '12PM Reservation', squad: ['Mia', 'Lena', 'Dani'], excuse: "it's too early", theme: 'classified' as const, event: 'brunch, miami', result: 'ordered uber mid-scroll' },
 ];
 
 export function LandingPage() {
@@ -33,19 +44,9 @@ export function LandingPage() {
       <section className="mx-auto max-w-5xl px-5 pb-16 pt-8 sm:pb-20 sm:pt-12">
         <div className="flex flex-col items-center text-center">
 
-          {/* Giant phone */}
-          <div className="relative mx-auto w-[260px] sm:w-[280px] lg:w-[300px]">
-            <div className="relative aspect-[9/16.5] overflow-hidden rounded-[2rem] border-[3px] border-black/90 bg-black shadow-[0_20px_60px_rgba(0,0,0,0.15)]">
-              <Image
-                src="/mobile-jake.jpg"
-                alt="Example generated site"
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
-            {/* Notch */}
-            <div className="absolute left-1/2 top-2 h-5 w-20 -translate-x-1/2 rounded-full bg-black" />
+          {/* Giant phone — HTML rendered, crisp at every size */}
+          <div className="w-[240px] sm:w-[270px] lg:w-[300px]">
+            <PhoneMockup {...heroPhone} />
           </div>
 
           {/* Story */}
@@ -66,25 +67,23 @@ export function LandingPage() {
         </div>
       </section>
 
-      {/* GALLERY — Desktop: horizontal tilted phones. Mobile: vertical story cards */}
+      {/* GALLERY */}
       <section className="border-t border-black/8 bg-[#fafaf9] py-14 sm:py-20">
-        <div className="mx-auto max-w-5xl px-5">
+        <div className="mx-auto max-w-6xl px-5">
           <p className="mb-8 text-center text-[13px] text-black/40 sm:mb-12">recent builds</p>
 
           {/* Desktop: tilted phone row */}
-          <div className="hidden justify-center gap-6 sm:flex lg:gap-8">
-            {gallery.map((card, i) => (
+          <div className="hidden justify-center gap-5 sm:flex lg:gap-7">
+            {galleryPhones.map((card, i) => (
               <div
-                key={card.name}
-                className="w-[150px] flex-shrink-0 transition-transform duration-500 hover:scale-105 lg:w-[165px]"
+                key={card.name + card.theme}
+                className="w-[140px] flex-shrink-0 transition-transform duration-500 hover:scale-105 lg:w-[155px]"
                 style={{
                   transform: `rotate(${['-4', '-1', '2', '-2', '3', '-3'][i]}deg)`,
-                  marginTop: i % 2 === 0 ? '0px' : '20px',
+                  marginTop: i % 2 === 0 ? '0px' : '18px',
                 }}
               >
-                <div className="relative aspect-[9/16] overflow-hidden rounded-2xl border-2 border-black/10 shadow-[0_8px_30px_rgba(0,0,0,0.08)]">
-                  <Image src={card.img} alt={card.name} fill className="object-cover" />
-                </div>
+                <PhoneMockup {...card} />
                 <div className="mt-3 text-center">
                   <p className="text-[13px] font-medium text-black">{card.name}</p>
                   <p className="text-[12px] text-black/40">{card.event}</p>
@@ -94,19 +93,18 @@ export function LandingPage() {
             ))}
           </div>
 
-          {/* Mobile: vertical story cards */}
-          <div className="space-y-6 sm:hidden">
-            {gallery.map((card) => (
-              <div key={card.name} className="flex gap-4">
-                <div className="relative w-[100px] flex-shrink-0">
-                  <div className="relative aspect-[9/16] overflow-hidden rounded-xl border border-black/10 shadow-sm">
-                    <Image src={card.img} alt={card.name} fill className="object-cover" />
-                  </div>
-                </div>
-                <div className="flex flex-col justify-center py-1">
-                  <p className="text-[15px] font-medium text-black">{card.name}</p>
-                  <p className="mt-0.5 text-[13px] text-black/45">{card.event}</p>
-                  <p className="mt-2 text-[13px] font-medium text-[#22c55e]">{card.result}</p>
+          {/* Mobile: horizontal scroll of medium phones */}
+          <div
+            className="flex gap-5 overflow-x-auto pb-4 sm:hidden"
+            style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none' }}
+          >
+            {galleryPhones.map((card) => (
+              <div key={card.name + card.theme} className="w-[160px] flex-shrink-0">
+                <PhoneMockup {...card} />
+                <div className="mt-3">
+                  <p className="text-[13px] font-medium text-black">{card.name}</p>
+                  <p className="text-[12px] text-black/40">{card.event}</p>
+                  <p className="mt-1 text-[12px] font-medium text-[#22c55e]">{card.result}</p>
                 </div>
               </div>
             ))}
