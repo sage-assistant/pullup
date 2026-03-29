@@ -350,22 +350,35 @@ export function CreateOracle() {
               }
 
               if (message.kind === 'result') {
-                const url = message.content.match(/https?:\/\/\S+/)?.[0];
+                const siteUrl = resultUrl || message.content.match(/https?:\/\/\S+/)?.[0] || message.content.match(/\/sites\/\S+/)?.[0];
                 return (
                   <div key={message.id} className="border border-black p-4">
                     <p className="font-mono text-[11px] uppercase tracking-[0.34em] text-[#666666]">RESULT</p>
                     <p className="mt-3 text-black">oracle &gt; [OK] YOUR GUILT TRIP IS LIVE.</p>
-                    {url ? (
+                    {siteUrl ? (
                       <>
-                        <div className="mt-4 border border-[#39FF14] p-4 text-[#39FF14]">{url}</div>
                         <a
-                          href={url}
+                          href={siteUrl}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="mt-4 inline-flex items-center justify-center border border-black bg-[#39FF14] px-5 py-3 text-[11px] uppercase tracking-[0.32em] text-black transition hover:border-[#39FF14]"
+                          className="mt-4 block border border-[#39FF14] p-4 font-mono text-sm text-[#39FF14] break-all hover:bg-[#39FF14]/10 transition"
                         >
-                          SEND TO TARGET
+                          {siteUrl}
                         </a>
+                        <a
+                          href={siteUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-4 inline-flex items-center justify-center border border-black bg-[#39FF14] px-5 py-3 text-[11px] uppercase tracking-[0.32em] text-black transition hover:brightness-90"
+                        >
+                          OPEN SITE
+                        </a>
+                        <button
+                          onClick={() => { navigator.clipboard.writeText(siteUrl); }}
+                          className="mt-2 ml-3 inline-flex items-center justify-center border border-black px-5 py-3 text-[11px] uppercase tracking-[0.32em] text-black transition hover:bg-[#f8f8f8]"
+                        >
+                          COPY LINK
+                        </button>
                       </>
                     ) : null}
                   </div>
