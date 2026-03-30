@@ -1,70 +1,45 @@
 import { buildSiteSlug, writeGeneratedSite } from '@/lib/generated-sites';
-import { stripHtmlFences } from '@/lib/oracle-flow';
 import { openai, requireOpenAIKey } from '@/lib/openai';
+import { buildSiteHtml, type SiteContent } from '@/lib/site-template';
 import type { NightPlan } from '@/lib/types';
 
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
-function buildPrompt(data: NightPlan) {
-  return `
-Generate a complete self-contained HTML document for a Swiss terminal minimal interactive website that guilt-trips ${data.target.name} into going out tonight.
+function buildContentPrompt(data: NightPlan) {
+  return `Generate personalized content for a guilt-trip website convincing ${data.target.name} to go to ${data.venueName} tonight.
 
-Requirements:
-- Output raw HTML only. No markdown fences. No explanations.
-- Use inline CSS and inline JavaScript only.
-- Design system must strictly use:
-  - Background: #FFFFFF
-  - Text: #000000
-  - Accent: #39FF14
-  - Borders: #E0E0E0
-  - Surface: #F8F8F8
-  - Muted text: #666666
-- Fonts must be loaded from Google Fonts: Inter and Space Mono.
-- Headlines use Inter with very heavy weight, uppercase, and tight spacing.
-- Body and UI labels use Space Mono.
-- Labels should be uppercase with wide tracking.
-- Style direction: Swiss poster energy meets hacker terminal.
-- No gradients, no shadows, no glass effects, no decorative illustrations.
-- Use only thin 1px solid borders.
-- White background everywhere. Black text everywhere. Neon lime is the only accent color.
-- Personalize to this target:
-  - Name: ${data.target.name}
-  - City: ${data.target.city}
-  - Title: ${data.target.title || 'Unknown'}
-  - Company: ${data.target.company || 'Unknown'}
-  - School: ${data.target.school || 'Unknown'}
-  - Facts: ${(data.target.facts || []).join(' | ') || 'None'}
-- Tonight's plan:
-  - Venue: ${data.venueName}
-  - Address: ${data.venueAddress}
-  - City: ${data.city}
-  - Closing time: ${data.time}
-- Squad roster: ${data.squad.map((member) => `${member.name} (${member.role})`).join(', ') || 'No roster provided'}
-- Excuse to destroy: ${data.excuse}
-- Inside jokes and context: ${data.context}
+Target info:
+- Name: ${data.target.name}
+- Title: ${data.target.title || 'Unknown'}
+- Company: ${data.target.company || 'Unknown'}
+- School: ${data.target.school || 'Unknown'}
+- Facts: ${(data.target.facts || []).join(' | ') || 'None'}
+
+Tonight:
+- Venue: ${data.venueName}, ${data.venueAddress}, ${data.city}
+- Closing: ${data.time}
+- Squad: ${data.squad.map(s => s.name).join(', ') || 'Friends'}
+- Excuse they gave: "${data.excuse}"
+- Context/inside jokes: ${data.context || 'None'}
 - Outrage level: ${data.outrageLevel}/10
 
-Must include:
-- Splash screen / entry state
-- Hero with dramatic headline and clear CTA
-- Personalized roast section tied to career, company, school, and facts
-- Interactive excuse destroyer
-- Squad roster
-- Live countdown timer
-- FOMO analysis stats
-- Two timelines: stays home vs shows up
-- Petition section with fake signatures
-- Venue directions / final CTA
-- At least two Easter eggs
-- Mobile responsive layout
-- No emojis
-- Marketing copy must not use em dashes or en dashes
-- Layout should feel grid-based, minimal, and sharply aligned
-- Chat or terminal-like callouts can use prefixes like "oracle >" and "you >"
+Return ONLY valid JSON (no markdown fences) with these fields:
+{
+  "splashTagline": "dramatic one-liner for the splash screen, reference their name",
+  "heroHeadline": "big dramatic headline with their name, like 'JAKE, THE CONCERT IS TONIGHT.'",
+  "heroSubtitle": "2-3 sentence subtitle explaining the situation with humor",
+  "roastParagraph1": "paragraph roasting them using their job/school/company. Make it specific and funny. Reference real details.",
+  "roastParagraph2": "second paragraph escalating the roast. Reference their excuse and why it's pathetic given who they are.",
+  "excuseResponses": ["array of 6 funny responses to destroy their excuse. Each should be 1-2 sentences. Reference their career, school, or company when possible."],
+  "timelineStayHome": ["array of 6 timeline entries for if they stay home. Each a short sentence. Start mundane, end with FOMO and regret. Be specific and funny."],
+  "timelineShowUp": ["array of 6 timeline entries for if they show up. Each a short sentence. Build from arrival to legendary night. Be specific."],
+  "consequences": ["array of 4 consequences of not attending. Each 1-2 sentences. Make them funny but cutting. Reference the squad, the venue, and their professional life."],
+  "petitionSignatures": [{"name":"Name","time":"X min ago"}, ... 6 fake signatures including the squad members, someone funny like their couch or uber driver],
+  "finalCta": "dramatic final headline like 'THE UBER TAKES 8 MINUTES, JAKE.'"
+}
 
-Make it funny, sharp, and specific. Include meaningful motion and interactive controls.
-  `.trim();
+Be funny, sharp, specific. Use their real career details. No generic humor. Outrage level ${data.outrageLevel}/10 means ${data.outrageLevel >= 8 ? 'absolutely unhinged, push every boundary' : data.outrageLevel >= 5 ? 'solidly aggressive with real edge' : 'playful but pointed'}. Never use dashes (em dash, en dash). Never use emojis.`;
 }
 
 export async function POST(request: Request) {
@@ -93,28 +68,56 @@ export async function POST(request: Request) {
   try {
     const response = await openai.responses.create({
       model: 'gpt-4o',
-      instructions:
-        'You are an elite creative developer generating a world-class single-file HTML experience. Return only valid HTML that runs in a browser with no external dependencies besides Google Fonts. Output the full HTML document and nothing else.',
-      input: buildPrompt(plan),
+      instructions: 'You generate personalized comedic content for guilt-trip websites. Return only valid JSON. No markdown fences. No explanation.',
+      input: buildContentPrompt(plan),
       temperature: 0.95,
-      max_output_tokens: 16000,
+      max_output_tokens: 4000,
     });
 
-    const html = stripHtmlFences(response.output_text);
-
-    if (!html.toLowerCase().includes('<html')) {
-      return Response.json({ error: 'Model did not return a full HTML document. Try again.' }, { status: 502 });
+    let text = response.output_text.trim();
+    text = text.replace(/^```json?\s*/i, '').replace(/\s*```$/, '');
+    
+    let content: Partial<SiteContent>;
+    try {
+      content = JSON.parse(text);
+    } catch {
+      return Response.json({ error: 'AI returned invalid content. Try again.' }, { status: 502 });
     }
 
+    const siteContent: SiteContent = {
+      targetName: plan.target.name,
+      targetTitle: plan.target.title || '',
+      targetCompany: plan.target.company || '',
+      targetSchool: plan.target.school || '',
+      targetFacts: plan.target.facts || [],
+      venueName: plan.venueName,
+      venueAddress: plan.venueAddress,
+      venueCity: plan.city,
+      closingTime: plan.time,
+      squad: plan.squad,
+      excuse: plan.excuse,
+      context: plan.context,
+      outrageLevel: plan.outrageLevel,
+      splashTagline: content.splashTagline || `This website was built specifically for ${plan.target.name}`,
+      heroHeadline: content.heroHeadline || `${plan.target.name}, you are needed tonight.`,
+      heroSubtitle: content.heroSubtitle || 'Your friends built you a whole website. That should tell you something.',
+      roastParagraph1: content.roastParagraph1 || '',
+      roastParagraph2: content.roastParagraph2 || '',
+      excuseResponses: content.excuseResponses || ['Your excuse has been rejected.', 'Try again.', 'Still no.', 'The Oracle says no.', 'Denied.', 'Get in the Uber.'],
+      timelineStayHome: content.timelineStayHome || ['Falls asleep on couch', 'Wakes up to photos', 'Regret sets in', 'Opens Instagram', 'Sees everyone having fun', 'Whispers "I should have gone"'],
+      timelineShowUp: content.timelineShowUp || ['Walks in', 'Crew goes wild', 'Best conversation of the month', 'Loses track of time', 'Everyone agrees it was legendary', 'No regrets'],
+      consequences: content.consequences || ['The photos will be incredible. You won\'t be in them.', 'Inside jokes will be born tonight that you\'ll never understand.', 'This website will remain online forever.', 'Your friends will remember.'],
+      petitionSignatures: content.petitionSignatures || plan.squad.map(s => ({ name: s.name, time: '5 min ago' })),
+      finalCta: content.finalCta || `${plan.venueName}. Tonight. Be there.`,
+    };
+
+    const html = buildSiteHtml(siteContent);
     const slug = buildSiteSlug(plan.target.name, plan.venueName);
     const blobUrl = await writeGeneratedSite(slug, html);
 
-    return Response.json({
-      slug,
-      url: blobUrl,
-    });
+    return Response.json({ slug, url: blobUrl });
   } catch (err) {
-    const message = err instanceof Error ? err.message : 'Unknown generation error';
+    const message = err instanceof Error ? err.message : 'Unknown error';
     console.error('Generate error:', message);
     return Response.json({ error: `Generation failed: ${message}` }, { status: 500 });
   }
