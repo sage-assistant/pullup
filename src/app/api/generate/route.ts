@@ -27,7 +27,7 @@ Tonight:
 
 Return ONLY valid JSON (no markdown fences) with these fields:
 {
-  "template": "pick one of: newspaper, classified, campaign, terminal, default. Choose the best visual theme for their personality and the event type.",
+  "template": "pick one of: newspaper, classified, terminal, default. Choose the best visual theme for their personality and the event type.",
   "splashTagline": "dramatic one-liner for the splash screen, reference their name",
   "heroHeadline": "big dramatic headline with their name, like 'JAKE, THE CONCERT IS TONIGHT.'",
   "heroSubtitle": "2-3 sentence subtitle explaining the situation with humor",
