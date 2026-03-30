@@ -1,6 +1,7 @@
 import { buildSiteSlug, writeGeneratedSite } from '@/lib/generated-sites';
 import { openai, requireOpenAIKey } from '@/lib/openai';
-import { buildSiteHtml, type SiteContent } from '@/lib/site-template';
+import { type SiteContent } from '@/lib/site-template';
+import { templates, type TemplateName } from '@/lib/templates';
 import type { NightPlan } from '@/lib/types';
 
 export const runtime = 'nodejs';
@@ -26,6 +27,7 @@ Tonight:
 
 Return ONLY valid JSON (no markdown fences) with these fields:
 {
+  "template": "pick one of: newspaper, classified, campaign, terminal, default. Choose the best visual theme for their personality and the event type.",
   "splashTagline": "dramatic one-liner for the splash screen, reference their name",
   "heroHeadline": "big dramatic headline with their name, like 'JAKE, THE CONCERT IS TONIGHT.'",
   "heroSubtitle": "2-3 sentence subtitle explaining the situation with humor",
@@ -40,6 +42,18 @@ Return ONLY valid JSON (no markdown fences) with these fields:
 }
 
 Be funny, sharp, specific. Use their real career details. No generic humor. Outrage level ${data.outrageLevel}/10 means ${data.outrageLevel >= 8 ? 'absolutely unhinged, push every boundary' : data.outrageLevel >= 5 ? 'solidly aggressive with real edge' : 'playful but pointed'}. Never use dashes (em dash, en dash). Never use emojis.`;
+}
+
+function pickTemplateName(value: unknown): TemplateName {
+  if (typeof value !== 'string') {
+    return 'default';
+  }
+
+  if (value in templates) {
+    return value as TemplateName;
+  }
+
+  return 'default';
 }
 
 export async function POST(request: Request) {
@@ -77,7 +91,7 @@ export async function POST(request: Request) {
     let text = response.output_text.trim();
     text = text.replace(/^```json?\s*/i, '').replace(/\s*```$/, '');
     
-    let content: Partial<SiteContent>;
+    let content: Partial<SiteContent> & { template?: unknown };
     try {
       content = JSON.parse(text);
     } catch {
@@ -111,11 +125,12 @@ export async function POST(request: Request) {
       finalCta: content.finalCta || `${plan.venueName}. Tonight. Be there.`,
     };
 
-    const html = buildSiteHtml(siteContent);
+    const templateName = pickTemplateName(content.template);
+    const html = templates[templateName](siteContent);
     const slug = buildSiteSlug(plan.target.name, plan.venueName);
     const blobUrl = await writeGeneratedSite(slug, html);
 
-    return Response.json({ slug, url: blobUrl });
+    return Response.json({ slug, url: blobUrl, template: templateName });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     console.error('Generate error:', message);
