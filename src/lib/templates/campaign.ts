@@ -115,7 +115,7 @@ main.visible{opacity:1}
 <body>
 <div id="splash" onclick="enterSite()">
   <div class="splash-card">
-    <div class="brand-chip"><span class="brand-dot"></span><span>#paid strategy room</span></div>
+    <div class="brand-chip"><span class="brand-dot"></span><span>PULLUP strategy room</span></div>
     <h1 class="splash-title">${content.splashTagline}</h1>
     <p class="splash-copy">Campaign ${campaignId} is now live. The objective is simple: convert ${content.targetName} from passive observer into an on site attendee at ${content.venueName} before the window closes.</p>
     <button class="splash-btn">Open the dashboard</button>
@@ -125,7 +125,7 @@ main.visible{opacity:1}
 <main id="main">
   <div class="page">
     <nav class="nav reveal">
-      <div class="nav-brand"><span>#paid</span> night ops</div>
+      <div class="nav-brand"><span>PULLUP</span> night ops</div>
       <div class="nav-meta">Campaign ${campaignId} | Live brief</div>
     </nav>
 
