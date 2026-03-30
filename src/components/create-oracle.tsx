@@ -350,7 +350,8 @@ export function CreateOracle() {
               }
 
               if (message.kind === 'result') {
-                const siteUrl = resultUrl || message.content.match(/https?:\/\/\S+/)?.[0] || message.content.match(/\/sites\/\S+/)?.[0];
+                const rawUrl = resultUrl || message.content.match(/https?:\/\/\S+/)?.[0] || message.content.match(/\/s\/\S+/)?.[0] || message.content.match(/\/sites\/\S+/)?.[0];
+                const siteUrl = rawUrl?.startsWith('/') ? `${typeof window !== 'undefined' ? window.location.origin : ''}${rawUrl}` : rawUrl;
                 return (
                   <div key={message.id} className="border border-black p-4">
                     <p className="font-mono text-[11px] uppercase tracking-[0.34em] text-[#666666]">RESULT</p>

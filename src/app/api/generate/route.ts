@@ -130,7 +130,7 @@ export async function POST(request: Request) {
     const slug = buildSiteSlug(plan.target.name, plan.venueName);
     const blobUrl = await writeGeneratedSite(slug, html);
 
-    return Response.json({ slug, url: blobUrl, template: templateName });
+    return Response.json({ slug, url: `/s/${slug}`, template: templateName });
   } catch (err) {
     const message = err instanceof Error ? err.message : 'Unknown error';
     console.error('Generate error:', message);
